@@ -1,15 +1,9 @@
 package br.com.mateus.manager.products.view;
 
-import java.awt.EventQueue;
-import java.awt.Font;
-
-import javax.swing.JButton;
-import javax.swing.JInternalFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 
 public class ProdutoView extends JInternalFrame {
 	/**
@@ -51,25 +45,25 @@ public class ProdutoView extends JInternalFrame {
 		panel.setBounds(0, 0, 727, 78);
 		getContentPane().add(panel);
 
-		JButton button = new JButton("Novo");
-		button.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		button.setBounds(10, 21, 123, 33);
-		panel.add(button);
+        JButton btnNovo = new JButton("Novo");
+        btnNovo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        btnNovo.setBounds(10, 21, 123, 33);
+        panel.add(btnNovo);
 
-		JButton button_1 = new JButton("Editar");
-		button_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		button_1.setBounds(209, 21, 123, 33);
-		panel.add(button_1);
+        JButton btnEditar = new JButton("Editar");
+        btnEditar.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        btnEditar.setBounds(209, 21, 123, 33);
+        panel.add(btnEditar);
 
-		JButton button_2 = new JButton("Excluir");
-		button_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		button_2.setBounds(401, 21, 124, 33);
-		panel.add(button_2);
+        JButton btnExcluir = new JButton("Excluir");
+        btnExcluir.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        btnExcluir.setBounds(401, 21, 124, 33);
+        panel.add(btnExcluir);
 
-		JButton button_3 = new JButton("Pesquisar");
-		button_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		button_3.setBounds(594, 21, 123, 33);
-		panel.add(button_3);
+        JButton btnPesquisar = new JButton("Pesquisar");
+        btnPesquisar.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        btnPesquisar.setBounds(594, 21, 123, 33);
+        panel.add(btnPesquisar);
 
 		JPanel panelTableProduto = new JPanel();
 		panelTableProduto.setBounds(10, 253, 707, 189);

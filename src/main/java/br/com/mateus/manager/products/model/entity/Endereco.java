@@ -2,10 +2,7 @@ package br.com.mateus.manager.products.model.entity;
 
 import br.com.mateus.manager.products.model.enums.Estado;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Endereco {
@@ -19,6 +16,7 @@ public class Endereco {
 	private String cep;
 	private String complemento;
 	private String cidade;
+	@Enumerated(EnumType.STRING)
 	private Estado uf;
 
 	Endereco() {

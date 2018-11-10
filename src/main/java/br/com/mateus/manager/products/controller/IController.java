@@ -8,7 +8,7 @@ public interface IController<Entity> {
 
 	boolean atualizar(Entity entity);
 
-	Long getId(Entity entity);
+    Entity buscar(Long id);
 
 	List<Entity> buscarTodos();
 
