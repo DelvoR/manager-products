@@ -30,9 +30,11 @@ public class JOptionUtils {
 				((JDateChooser) object).setEnabled(ativo);
 			} else if (object instanceof JButton) {
 				((JButton) object).setEnabled(ativo);
-			} else if (object instanceof JPanel) {
-				((JPanel) object).setEnabled(ativo);
-			}
+            } else if (object instanceof JPanel) {
+                ((JPanel) object).setEnabled(ativo);
+            } else if (object instanceof JComboBox) {
+                ((JComboBox<?>) object).setEnabled(ativo);
+            }
 		}
 	}
 
