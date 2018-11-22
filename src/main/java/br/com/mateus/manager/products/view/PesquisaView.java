@@ -6,6 +6,12 @@ import java.awt.*;
 public class PesquisaView extends JInternalFrame {
 
 	/**
+	 *
+	 */
+	private static final long serialVersionUID = -8163735968499630750L;
+	private static PesquisaView instance;
+
+	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
@@ -22,9 +28,16 @@ public class PesquisaView extends JInternalFrame {
 	/**
 	 * Create the frame.
 	 */
-	public PesquisaView() {
+	private PesquisaView() {
 		setBounds(100, 100, 687, 417);
 
+	}
+
+	public static PesquisaView getInstance() {
+		if (instance == null) {
+			instance = new PesquisaView();
+		}
+		return instance;
 	}
 
 }

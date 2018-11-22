@@ -1,18 +1,16 @@
 package br.com.mateus.manager.products.model.entity;
 
+import lombok.Data;
+
+import javax.persistence.*;
 import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-
+@Data
 @Entity
 public class Produto {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "produto_sequence")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String descricao;
     private Double quantidade;
@@ -28,37 +26,4 @@ public class Produto {
         this.quantidade = quantidade;
         this.valor = valor;
     }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public Double getQuantidade() {
-        return quantidade;
-    }
-
-    public void setQuantidade(Double quantidade) {
-        this.quantidade = quantidade;
-    }
-
-    public Double getValor() {
-        return valor;
-    }
-
-    public void setValor(Double valor) {
-        this.valor = valor;
-    }
-
 }

@@ -6,6 +6,7 @@ import br.com.mateus.manager.products.model.entity.Loja;
 import br.com.mateus.manager.products.model.enums.Estado;
 import br.com.mateus.manager.products.model.enums.Operacao;
 import br.com.mateus.manager.products.utils.ColumnTitle;
+import br.com.mateus.manager.products.utils.JanelaUtils;
 import br.com.mateus.manager.products.utils.Title;
 import org.apache.commons.lang3.StringUtils;
 
@@ -22,14 +23,17 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static br.com.mateus.manager.products.utils.JOptionUtils.*;
 
 public class LojaView extends JInternalFrame {
 
+    private static final long serialVersionUID = 5797416484063659840L;
     private static final int NO_ROWS = 0;
     private static final int NO_SELECTED_ROWS = -1;
-    private static final long serialVersionUID = 5797416484063659840L;
+    private static LojaView instance;
+    private JanelaUtils janelaUtils;
     private Long idLoja;
     private Long idEndereco;
     private Integer operacao;
@@ -40,7 +44,7 @@ public class LojaView extends JInternalFrame {
     private JTextField txtNumero;
     private JTextField txtBairro;
     private JTextField txtCep;
-    private JComboBox txtUf;
+    private JComboBox<Estado> txtUf;
     private JTextField txtComplemento;
     private JTextField txtCidade;
     private JTable tableLoja;
@@ -57,10 +61,18 @@ public class LojaView extends JInternalFrame {
     /**
      * Create the frame.
      */
-    LojaView() {
+    private LojaView() {
         initComponets();
+        janelaUtils = new JanelaUtils(MainView.getDesktop());
         carregarDadosTabela();
 
+    }
+
+    static LojaView getInstance() {
+        if (instance == null) {
+            instance = new LojaView();
+        }
+        return instance;
     }
 
     /**
@@ -88,36 +100,66 @@ public class LojaView extends JInternalFrame {
 
         JPanel panelAcoes = new JPanel();
         panelAcoes.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-        panelAcoes.setBounds(0, 0, 740, 78);
+        panelAcoes.setBounds(0, 0, 736, 50);
         getContentPane().add(panelAcoes);
-        panelAcoes.setLayout(null);
-
-        btnNovo = new JButton("Novo");
-        btnNovo.addActionListener(actionPerformedBtnNovo());
-        btnNovo.setFont(new Font("Tahoma", Font.PLAIN, 14));
-        btnNovo.setBounds(10, 21, 123, 33);
-        panelAcoes.add(btnNovo);
+        GridBagLayout gridPanelAcoes = new GridBagLayout();
+        gridPanelAcoes.columnWidths = new int[]{123, 123, 124, 123, 123, 0};
+        gridPanelAcoes.rowHeights = new int[]{33, 0};
+        gridPanelAcoes.columnWeights = new double[]{1.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE};
+        gridPanelAcoes.rowWeights = new double[]{1.0, Double.MIN_VALUE};
+        panelAcoes.setLayout(gridPanelAcoes);
 
         btnEditar = new JButton("Editar");
         btnEditar.setEnabled(false);
         btnEditar.addActionListener(actionPerformedBtnEditar());
 
-        btnEditar.setFont(new Font("Tahoma", Font.PLAIN, 14));
-        btnEditar.setBounds(214, 21, 123, 33);
-        panelAcoes.add(btnEditar);
+        btnNovo = new JButton("Novo");
+        btnNovo.addActionListener(actionPerformedBtnNovo());
+        btnNovo.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        GridBagConstraints gridBtnNovo = new GridBagConstraints();
+        gridBtnNovo.fill = GridBagConstraints.BOTH;
+        gridBtnNovo.insets = new Insets(0, 0, 0, 5);
+        gridBtnNovo.gridx = 0;
+        gridBtnNovo.gridy = 0;
+        panelAcoes.add(btnNovo, gridBtnNovo);
+
+        btnEditar.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        GridBagConstraints gridBtnEditar = new GridBagConstraints();
+        gridBtnEditar.fill = GridBagConstraints.BOTH;
+        gridBtnEditar.insets = new Insets(0, 0, 0, 5);
+        gridBtnEditar.gridx = 1;
+        gridBtnEditar.gridy = 0;
+        panelAcoes.add(btnEditar, gridBtnEditar);
+
+        btnPesquisa = new JButton("Pesquisa");
+        btnPesquisa.addActionListener(actionPerformedBtnPesquisa());
 
         btnExcluir = new JButton("Excluir");
         btnExcluir.setEnabled(false);
         btnExcluir.addActionListener(actionPerfomedBtnExcluir());
-        btnExcluir.setFont(new Font("Tahoma", Font.PLAIN, 14));
-        btnExcluir.setBounds(403, 21, 124, 33);
-        panelAcoes.add(btnExcluir);
+        btnExcluir.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        GridBagConstraints gridBtnExcluir = new GridBagConstraints();
+        gridBtnExcluir.fill = GridBagConstraints.BOTH;
+        gridBtnExcluir.insets = new Insets(0, 0, 0, 5);
+        gridBtnExcluir.gridx = 2;
+        gridBtnExcluir.gridy = 0;
+        panelAcoes.add(btnExcluir, gridBtnExcluir);
+        btnPesquisa.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        GridBagConstraints dridBtnPesquisa = new GridBagConstraints();
+        dridBtnPesquisa.fill = GridBagConstraints.BOTH;
+        dridBtnPesquisa.insets = new Insets(0, 0, 0, 5);
+        dridBtnPesquisa.gridx = 3;
+        dridBtnPesquisa.gridy = 0;
+        panelAcoes.add(btnPesquisa, dridBtnPesquisa);
 
-        btnPesquisa = new JButton("Pesquisa");
-        btnPesquisa.addActionListener(actionPerformedBtnPesquisa());
-        btnPesquisa.setFont(new Font("Tahoma", Font.PLAIN, 14));
-        btnPesquisa.setBounds(595, 21, 123, 33);
-        panelAcoes.add(btnPesquisa);
+        JButton btnProdutos = new JButton("Produtos");
+        btnProdutos.addActionListener(actionPerformedBtnProdutos());
+        btnProdutos.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        GridBagConstraints gridBtnProdutos = new GridBagConstraints();
+        gridBtnProdutos.fill = GridBagConstraints.BOTH;
+        gridBtnProdutos.gridx = 4;
+        gridBtnProdutos.gridy = 0;
+        panelAcoes.add(btnProdutos, gridBtnProdutos);
 
         JLabel lblRazaoSocial = new JLabel("Raz\u00E3o Social:");
         lblRazaoSocial.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -263,6 +305,7 @@ public class LojaView extends JInternalFrame {
         panelAcoesComplementares.setLayout(null);
 
         btnSalvar = new JButton("Salvar");
+        btnSalvar.setFont(new Font("Tahoma", Font.PLAIN, 12));
         btnSalvar.setEnabled(false);
         btnSalvar.addActionListener(actionPerformedBtnSalvar());
 
@@ -270,6 +313,7 @@ public class LojaView extends JInternalFrame {
         panelAcoesComplementares.add(btnSalvar);
 
         btnCancelar = new JButton("Cancelar");
+        btnCancelar.setFont(new Font("Tahoma", Font.PLAIN, 12));
         btnCancelar.setEnabled(false);
         btnCancelar.addActionListener(actionPerformedBtnCancelar());
 
@@ -281,6 +325,10 @@ public class LojaView extends JInternalFrame {
         btnPesquisar.setBounds(599, 89, 119, 20);
         getContentPane().add(btnPesquisar);
         btnPesquisar.setEnabled(false);
+    }
+
+    private ActionListener actionPerformedBtnProdutos() {
+        return actionEvent -> janelaUtils.abrirInternalFrame(ProdutoView.getInstance());
     }
 
     private ActionListener actionPerformedBtnPesquisar() {
@@ -299,10 +347,7 @@ public class LojaView extends JInternalFrame {
     }
 
     private ActionListener actionPerformedBtnPesquisa() {
-        return actionEvent -> {
-            openFields(true, btnPesquisar, btnCancelar, txtRazaoSocial);
-
-        };
+        return actionEvent -> openFields(true, btnPesquisar, btnCancelar, txtRazaoSocial);
     }
 
     private MouseAdapter mouseClickedTableLoja() {
@@ -328,7 +373,7 @@ public class LojaView extends JInternalFrame {
                 txtNumero.setText(endereco.getNumero().toString());
                 txtUf.setSelectedItem(endereco.getUf().getSigla());
                 txtBairro.setText(endereco.getBairro());
-                txtCep.setText(endereco.getCEP());
+                txtCep.setText(endereco.getCep());
                 txtCidade.setText(endereco.getCidade());
                 txtComplemento.setText(endereco.getComplemento());
             }
@@ -381,7 +426,7 @@ public class LojaView extends JInternalFrame {
             String cnpj = txtCnpj.getText();
             String rua = txtRua.getText();
             Integer numero = StringUtils.isNotBlank(txtNumero.getText()) ? Integer.parseInt(txtNumero.getText()) : 0;
-            Estado uf = Estado.fromString(txtUf.getSelectedItem().toString());
+            Estado uf = Estado.fromString(Objects.requireNonNull(txtUf.getSelectedItem()).toString());
             String bairro = txtBairro.getText();
             String cep = txtCep.getText();
             String cidade = txtCidade.getText();
@@ -496,5 +541,5 @@ public class LojaView extends JInternalFrame {
      */
     private void clearAllFields() {
         clearFields(txtRazaoSocial, txtCnpj, txtRua, txtNumero, txtUf, txtBairro, txtCep, txtCidade, txtComplemento);
-    }
+	}
 }
