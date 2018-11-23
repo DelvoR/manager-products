@@ -10,6 +10,10 @@ import java.io.Serializable;
 @Entity
 public class Endereco implements Serializable {
 
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -3662464678421388074L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "endereco_sequence")
 	private Long id;

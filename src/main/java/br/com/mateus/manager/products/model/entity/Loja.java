@@ -10,6 +10,10 @@ import java.util.List;
 @Entity
 public class Loja implements Serializable {
 
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -4879101698489057083L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "loja_sequence")
 	private Long id;
