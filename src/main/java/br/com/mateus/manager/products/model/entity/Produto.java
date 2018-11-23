@@ -3,18 +3,22 @@ package br.com.mateus.manager.products.model.entity;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @Data
 @Entity
-public class Produto {
+public class Produto implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "produto_sequence")
     private Long id;
     private String descricao;
     private Double quantidade;
     private Double valor;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(foreignKey = @ForeignKey(name = "produto_fk"))
+    private Categoria categoria;
     @ManyToMany(mappedBy = "produtos")
     private List<Loja> lojas;
 

@@ -3,14 +3,15 @@ package br.com.mateus.manager.products.model.entity;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @Data
 @Entity
-public class Loja {
+public class Loja implements Serializable {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "loja_sequence")
 	private Long id;
 	@Column(name = "razao_social")
 	private String razaoSocial;
