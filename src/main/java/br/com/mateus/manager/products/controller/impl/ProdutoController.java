@@ -11,7 +11,7 @@ public class ProdutoController implements IController<Produto> {
 
     private AbstractRepository<Produto> repository;
 
-    ProdutoController() {
+    public ProdutoController() {
         repository = new ProdutoRepository();
     }
 

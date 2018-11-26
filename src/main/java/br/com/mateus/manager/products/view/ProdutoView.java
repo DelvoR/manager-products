@@ -1,24 +1,33 @@
 package br.com.mateus.manager.products.view;
 
+import br.com.mateus.manager.products.controller.impl.LojaController;
+import br.com.mateus.manager.products.controller.impl.ProdutoController;
 import br.com.mateus.manager.products.model.entity.Categoria;
+import br.com.mateus.manager.products.model.entity.Produto;
 import br.com.mateus.manager.products.model.entity.SubCategoria;
+import br.com.mateus.manager.products.model.enums.Operacao;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+
+import org.apache.commons.lang3.StringUtils;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class ProdutoView extends JInternalFrame {
 
 	private static final long serialVersionUID = 2538628797157567245L;
 	private static ProdutoView instance;
+	private Integer operacao;
 
 	private JTable tableProduto;
 	private JButton btnNovo;
-	private JTextField textNomeProduto;
-	private JTextField textQuantidade;
-	private JTextField textPreco;
+	private JTextField txtNomeProduto;
+	private JTextField txtQuantidade;
+	private JTextField txtPreco;
 
 	/**
 	 * Create the frame.
@@ -63,10 +72,10 @@ public class ProdutoView extends JInternalFrame {
 		panelAcoes.setBounds(0, 0, 736, 50);
 		getContentPane().add(panelAcoes);
 		GridBagLayout gbl_panelAcoes = new GridBagLayout();
-		gbl_panelAcoes.columnWidths = new int[]{123, 123, 124, 123, 123, 0};
-		gbl_panelAcoes.rowHeights = new int[]{33, 0};
-		gbl_panelAcoes.columnWeights = new double[]{1.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE};
-		gbl_panelAcoes.rowWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_panelAcoes.columnWidths = new int[] { 123, 123, 124, 123, 123, 0 };
+		gbl_panelAcoes.rowHeights = new int[] { 33, 0 };
+		gbl_panelAcoes.columnWeights = new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE };
+		gbl_panelAcoes.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
 		panelAcoes.setLayout(gbl_panelAcoes);
 
 		btnNovo = new JButton("Novo");
@@ -160,20 +169,20 @@ public class ProdutoView extends JInternalFrame {
 		lblSubcategoria.setBounds(250, 78, 88, 20);
 		panelProduto.add(lblSubcategoria);
 
-		textNomeProduto = new JTextField();
-		textNomeProduto.setBounds(108, 22, 460, 20);
-		panelProduto.add(textNomeProduto);
-		textNomeProduto.setColumns(10);
+		txtNomeProduto = new JTextField();
+		txtNomeProduto.setBounds(108, 22, 460, 20);
+		panelProduto.add(txtNomeProduto);
+		txtNomeProduto.setColumns(10);
 
-		textQuantidade = new JTextField();
-		textQuantidade.setColumns(10);
-		textQuantidade.setBounds(108, 50, 132, 20);
-		panelProduto.add(textQuantidade);
+		txtQuantidade = new JTextField();
+		txtQuantidade.setColumns(10);
+		txtQuantidade.setBounds(108, 50, 132, 20);
+		panelProduto.add(txtQuantidade);
 
-		textPreco = new JTextField();
-		textPreco.setBounds(108, 81, 132, 20);
-		panelProduto.add(textPreco);
-		textPreco.setColumns(10);
+		txtPreco = new JTextField();
+		txtPreco.setBounds(108, 81, 132, 20);
+		panelProduto.add(txtPreco);
+		txtPreco.setColumns(10);
 
 		JComboBox<Categoria> comboBoxCategoria = new JComboBox();
 		comboBoxCategoria.setBounds(348, 50, 220, 20);
@@ -183,30 +192,52 @@ public class ProdutoView extends JInternalFrame {
 		comboBoxSubCategoria.setBounds(348, 78, 220, 20);
 		panelProduto.add(comboBoxSubCategoria);
 
-		JPanel panel = new JPanel();
-		panel.setLayout(null);
-		panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"),
-
+		JPanel panelAcoesComplementares = new JPanel();
+		panelAcoesComplementares.setLayout(null);
+		panelAcoesComplementares.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"),
 				"A\u00E7\u00F5es", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panel.setBounds(598, 61, 119, 116);
-		getContentPane().add(panel);
+		panelAcoesComplementares.setBounds(598, 61, 119, 116);
+		getContentPane().add(panelAcoesComplementares);
 
 		JButton btnSalvar = new JButton("Salvar");
+		btnSalvar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				Produto produto = new Produto.Builder()
+						.descricao(txtNomeProduto.getText())
+						.quantidade(Double.parseDouble(txtQuantidade.getText()))
+						.valor(Double.parseDouble(txtPreco.getText()))
+						// .categoria(comboBoxCategoria.getSelectedItem().toString())
+						.build();
+				
+				if (StringUtils.isNotBlank(produto.getDescricao())) {
+					ProdutoController produtoController = new ProdutoController();
+					try {
+						if (operacao.equals(Operacao.NOVO.getOperacao())) {
+							boolean resultado = produtoController.cadastrar(produto);
+							
+						}
+					} catch (Exception e) {
+						
+					}
+				}
+
+			}
+		});
 		btnSalvar.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		btnSalvar.setEnabled(false);
 		btnSalvar.setBounds(12, 21, 97, 33);
-		panel.add(btnSalvar);
+		panelAcoesComplementares.add(btnSalvar);
 
 		JButton btnCancelar = new JButton("Cancelar");
 		btnCancelar.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		btnCancelar.setEnabled(false);
 		btnCancelar.setBounds(12, 65, 97, 33);
-		panel.add(btnCancelar);
+		panelAcoesComplementares.add(btnCancelar);
 	}
 
 	private ActionListener actionPerformedBtnNovo() {
 		return actionEvent -> {
-
+			operacao = Operacao.NOVO.getOperacao();
 		};
 	}
 }

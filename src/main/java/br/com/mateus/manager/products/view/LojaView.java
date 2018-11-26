@@ -1,5 +1,48 @@
 package br.com.mateus.manager.products.view;
 
+import static br.com.mateus.manager.products.utils.JOptionUtils.clearFields;
+import static br.com.mateus.manager.products.utils.JOptionUtils.getValueFromColumn;
+import static br.com.mateus.manager.products.utils.JOptionUtils.isTrue;
+import static br.com.mateus.manager.products.utils.JOptionUtils.mostrarInformacao;
+import static br.com.mateus.manager.products.utils.JOptionUtils.mostrarMensagem;
+import static br.com.mateus.manager.products.utils.JOptionUtils.openFields;
+import static br.com.mateus.manager.products.utils.JOptionUtils.setValueToFieldFromTable;
+import static br.com.mateus.manager.products.utils.JOptionUtils.yesOrNo;
+
+import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+
+import org.apache.commons.lang3.StringUtils;
+
 import br.com.mateus.manager.products.controller.impl.LojaController;
 import br.com.mateus.manager.products.model.entity.Endereco;
 import br.com.mateus.manager.products.model.entity.Loja;
@@ -8,24 +51,6 @@ import br.com.mateus.manager.products.model.enums.Operacao;
 import br.com.mateus.manager.products.utils.ColumnTitle;
 import br.com.mateus.manager.products.utils.JanelaUtils;
 import br.com.mateus.manager.products.utils.Title;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.swing.*;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
-import static br.com.mateus.manager.products.utils.JOptionUtils.*;
 
 public class LojaView extends JInternalFrame {
 
@@ -44,7 +69,7 @@ public class LojaView extends JInternalFrame {
 	private JTextField txtNumero;
 	private JTextField txtBairro;
 	private JTextField txtCep;
-	private JComboBox<Estado> txtUf;
+	private JComboBox<Estado> comboBoxUf;
 	private JTextField txtComplemento;
 	private JTextField txtCidade;
 	private JTable tableLoja;
@@ -251,11 +276,11 @@ public class LojaView extends JInternalFrame {
 		}
 
 		Collections.sort(ufs);
-		txtUf = new JComboBox(ufs.toArray());
-		txtUf.setEditable(false);
-		txtUf.setEnabled(false);
-		txtUf.setBounds(493, 21, 74, 20);
-		panelEndereco.add(txtUf);
+		comboBoxUf = new JComboBox(ufs.toArray());
+		comboBoxUf.setEditable(false);
+		comboBoxUf.setEnabled(false);
+		comboBoxUf.setBounds(493, 21, 74, 20);
+		panelEndereco.add(comboBoxUf);
 
 		JLabel lblComplemento = new JLabel("Complemento:");
 		lblComplemento.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -371,7 +396,7 @@ public class LojaView extends JInternalFrame {
 				idEndereco = endereco.getId();
 				txtRua.setText(endereco.getRua());
 				txtNumero.setText(endereco.getNumero().toString());
-				txtUf.setSelectedItem(endereco.getUf().getSigla());
+				comboBoxUf.setSelectedItem(endereco.getUf().getSigla());
 				txtBairro.setText(endereco.getBairro());
 				txtCep.setText(endereco.getCep());
 				txtCidade.setText(endereco.getCidade());
@@ -392,7 +417,7 @@ public class LojaView extends JInternalFrame {
 				}
 			} else {
 				openFields(false, btnExcluir, btnNovo, btnSalvar, btnPesquisa);
-				openFields(true, panelAcoesComplementares, btnSalvar, txtRazaoSocial, txtCnpj, txtRua, txtNumero, txtUf,
+				openFields(true, panelAcoesComplementares, btnSalvar, txtRazaoSocial, txtCnpj, txtRua, txtNumero, comboBoxUf,
 						txtBairro, txtCep, txtCidade, txtComplemento, btnCancelar);
 
 			}
@@ -430,7 +455,7 @@ public class LojaView extends JInternalFrame {
 			Endereco endereco = new Endereco.Builder()
 					.rua(txtRua.getText())
 					.numero(getNumero())
-					.uf(getUf())
+					.uf(comboBoxUf.getSelectedItem().toString())
 					.bairro(bairro)
 					.cep(txtCep.getText())
 					.cidade(cidade)
@@ -471,10 +496,6 @@ public class LojaView extends JInternalFrame {
 		};
 	}
 
-	private Estado getUf() {
-		return Estado.fromString(Objects.requireNonNull(txtUf.getSelectedItem()).toString());
-	}
-
 	private int getNumero() {
 		return StringUtils.isNotBlank(txtNumero.getText()) ? Integer.parseInt(txtNumero.getText()) : 0;
 	}
@@ -483,7 +504,7 @@ public class LojaView extends JInternalFrame {
 		return actionEvent -> {
 			operacao = Operacao.NOVO.getOperacao();
 			openFields(false, btnEditar, btnExcluir, btnPesquisa, btnNovo);
-			openFields(true, txtRazaoSocial, txtCnpj, txtRua, txtNumero, txtUf, txtBairro, txtCep, txtCidade,
+			openFields(true, txtRazaoSocial, txtCnpj, txtRua, txtNumero, comboBoxUf, txtBairro, txtCep, txtCidade,
 					txtComplemento, btnCancelar, btnSalvar);
 			clearAllFields();
 		};
@@ -534,7 +555,7 @@ public class LojaView extends JInternalFrame {
 	 */
 	private void voltarTelaParaSituacaoParaInicial() {
 		openFields(false, btnEditar, btnExcluir, btnPesquisar, panelAcoesComplementares, btnSalvar, btnCancelar,
-				txtRazaoSocial, txtCnpj, txtRua, txtNumero, txtUf, txtBairro, txtCep, txtCidade, txtComplemento);
+				txtRazaoSocial, txtCnpj, txtRua, txtNumero, comboBoxUf, txtBairro, txtCep, txtCidade, txtComplemento);
 		openFields(true, btnNovo, btnPesquisa);
 		removerFiltroTabela();
 		clearAllFields();
@@ -551,6 +572,6 @@ public class LojaView extends JInternalFrame {
 	 *
 	 */
 	private void clearAllFields() {
-		clearFields(txtRazaoSocial, txtCnpj, txtRua, txtNumero, txtUf, txtBairro, txtCep, txtCidade, txtComplemento);
+		clearFields(txtRazaoSocial, txtCnpj, txtRua, txtNumero, comboBoxUf, txtBairro, txtCep, txtCidade, txtComplemento);
 	}
 }

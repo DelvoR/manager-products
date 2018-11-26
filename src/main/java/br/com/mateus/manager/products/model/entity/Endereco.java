@@ -46,6 +46,7 @@ public class Endereco implements Serializable {
 		private String cep;
 		private String complemento;
 		private String cidade;
+		@SuppressWarnings("unused")
 		private Estado uf;
 
 		public Builder rua(String rua) {
@@ -78,6 +79,11 @@ public class Endereco implements Serializable {
 			return this;
 		}
 
+		public Builder uf(String uf) {
+			this.uf = Estado.fromString(uf);
+			return this;
+		}
+		
 		public Builder uf(Estado uf) {
 			this.uf = uf;
 			return this;
