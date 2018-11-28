@@ -338,9 +338,9 @@ public class LojaView extends JInternalFrame {
 		panelAcoesComplementares.add(btnSalvar);
 
 		btnCancelar = new JButton("Cancelar");
+		btnCancelar.addActionListener(actionPerformedBtnCancelar());
 		btnCancelar.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		btnCancelar.setEnabled(false);
-		btnCancelar.addActionListener(actionPerformedBtnCancelar());
 
 		btnCancelar.setBounds(12, 65, 97, 33);
 		panelAcoesComplementares.add(btnCancelar);
@@ -413,10 +413,10 @@ public class LojaView extends JInternalFrame {
 				if (tableLoja.getRowCount() == NO_ROWS) {
 					mostrarMensagem("A tabela esta vazia!");
 				} else {
-					mostrarMensagem("Deve ser selecionado um cliente!");
+					mostrarMensagem("Deve ser selecionado uma loja!");
 				}
 			} else {
-				openFields(false, btnExcluir, btnNovo, btnSalvar, btnPesquisa);
+				openFields(false, btnExcluir, btnNovo, btnPesquisa);
 				openFields(true, panelAcoesComplementares, btnSalvar, txtRazaoSocial, txtCnpj, txtRua, txtNumero, comboBoxUf,
 						txtBairro, txtCep, txtCidade, txtComplemento, btnCancelar);
 
@@ -432,7 +432,7 @@ public class LojaView extends JInternalFrame {
 				if (tableLoja.getRowCount() == NO_ROWS) {
 					mostrarMensagem("A tabela esta vazia!");
 				} else {
-					mostrarMensagem("Deve ser selecionado um cliente!");
+					mostrarMensagem("Deve ser selecionado uma loja!");
 				}
 			} else {
 				openFields(false, btnNovo, btnSalvar);
@@ -480,7 +480,7 @@ public class LojaView extends JInternalFrame {
 						tableModel.setValueAt(cnpj, tableLoja.getSelectedRow(), 1);
 						tableModel.setValueAt(razaoSocial, tableLoja.getSelectedRow(), 2);
 						tableModel.setValueAt(cidade, tableLoja.getSelectedRow(), 3);
-						tableModel.setValueAt(cidade, tableLoja.getSelectedRow(), 4);
+						tableModel.setValueAt(bairro, tableLoja.getSelectedRow(), 4);
 					}
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "Loja " + razaoSocial + " cadastrada com sucesso!", "Sucesso",
@@ -505,7 +505,7 @@ public class LojaView extends JInternalFrame {
 			operacao = Operacao.NOVO.getOperacao();
 			openFields(false, btnEditar, btnExcluir, btnPesquisa, btnNovo);
 			openFields(true, txtRazaoSocial, txtCnpj, txtRua, txtNumero, comboBoxUf, txtBairro, txtCep, txtCidade,
-					txtComplemento, btnCancelar, btnSalvar);
+					txtComplemento, btnCancelar, btnSalvar, panelAcoesComplementares);
 			clearAllFields();
 		};
 	}
@@ -519,15 +519,18 @@ public class LojaView extends JInternalFrame {
 	 */
 	private void carregarDadosTabela() {
 		LojaController lojaController = new LojaController();
-		List<Loja> lojas;
-		lojas = lojaController.buscarTodos();
+		List<Loja> lojas = lojaController.buscarTodos();
 
 		tableLoja.getColumnModel().getColumn(0).setPreferredWidth(5);
 		tableModel = (DefaultTableModel) tableLoja.getModel();
 
 		for (Loja loja : lojas) {
-			tableModel.addRow(new Object[]{loja.getId(), loja.getCnpj(), loja.getRazaoSocial(),
-					loja.getEndereco().getCidade(), loja.getEndereco().getBairro()});
+			tableModel.addRow(new Object[]{
+					loja.getId(),
+					loja.getCnpj(),
+					loja.getRazaoSocial(),
+					loja.getEndereco().getCidade(),
+					loja.getEndereco().getBairro()});
 		}
 	}
 
