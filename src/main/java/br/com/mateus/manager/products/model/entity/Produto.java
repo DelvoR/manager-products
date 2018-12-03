@@ -1,28 +1,11 @@
 package br.com.mateus.manager.products.model.entity;
 
+import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
-
-import lombok.Data;
-
-@Data
 @Entity
 public class Produto implements Serializable {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = -602935078438200968L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "produto_sequence")
@@ -30,11 +13,9 @@ public class Produto implements Serializable {
 	private String descricao;
 	private Double quantidade;
 	private Double valor;
-//	@OneToOne(cascade = CascadeType.ALL)
-//	@JoinColumn(foreignKey = @ForeignKey(name = "produto_fk"))
-//	private Categoria categoria;
-	@ManyToMany(mappedBy = "produtos")
-	private List<Loja> lojas;
+	@ManyToOne
+	@JoinColumn(name = "loja_id")
+	private Loja loja;
 
 	public Produto() {
 	}
@@ -43,8 +24,7 @@ public class Produto implements Serializable {
 		descricao = builder.descricao;
 		quantidade = builder.quantidade;
 		valor = builder.valor;
-//		categoria = builder.categoria;
-		lojas = builder.lojas;
+		loja = builder.loja;
 	}
 
 	@SuppressWarnings("unused")
@@ -52,8 +32,7 @@ public class Produto implements Serializable {
 		private String descricao;
 		private Double quantidade;
 		private Double valor;
-//		private Categoria categoria;
-		private List<Loja> lojas;
+		private Loja loja;
 
 		public Builder descricao(String descricao) {
 			this.descricao = descricao;
@@ -70,26 +49,53 @@ public class Produto implements Serializable {
 			return this;
 		}
 
-//		public Builder categoria(Categoria categoria) {
-//			this.categoria = categoria;
-//			return this;
-//		}
-
-//		public Builder subCategoria(SubCategoria subCategoria) {
-//			this.categoria.setSubCategoria(subCategoria);
-//			return this;
-//		}
-
 		public Builder loja(Loja loja) {
-			if (this.lojas == null) {
-				this.lojas = new ArrayList<>();
-			}
-			this.lojas.add(loja);
+			this.loja = loja;
 			return this;
 		}
 
 		public Produto build() {
 			return new Produto(this);
 		}
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getDescricao() {
+		return descricao;
+	}
+
+	public void setDescricao(String descricao) {
+		this.descricao = descricao;
+	}
+
+	public Double getQuantidade() {
+		return quantidade;
+	}
+
+	public void setQuantidade(Double quantidade) {
+		this.quantidade = quantidade;
+	}
+
+	public Double getValor() {
+		return valor;
+	}
+
+	public void setValor(Double valor) {
+		this.valor = valor;
+	}
+
+	public Loja getLoja() {
+		return loja;
+	}
+
+	public void setLoja(Loja loja) {
+		this.loja = loja;
 	}
 }

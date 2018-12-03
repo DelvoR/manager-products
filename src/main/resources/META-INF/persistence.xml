@@ -10,8 +10,6 @@
         <class>br.com.mateus.manager.products.model.entity.Produto</class>
         <class>br.com.mateus.manager.products.model.entity.Loja</class>
         <class>br.com.mateus.manager.products.model.entity.Endereco</class>
-        <class>br.com.mateus.manager.products.model.entity.Categoria</class>
-        <class>br.com.mateus.manager.products.model.entity.SubCategoria</class>
         <properties>
             <!-- Propriedades JDBC -->
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>

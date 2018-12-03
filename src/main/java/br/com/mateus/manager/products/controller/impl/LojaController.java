@@ -1,11 +1,11 @@
 package br.com.mateus.manager.products.controller.impl;
 
+import java.util.List;
+
 import br.com.mateus.manager.products.controller.IController;
 import br.com.mateus.manager.products.model.entity.Loja;
 import br.com.mateus.manager.products.model.repository.AbstractRepository;
 import br.com.mateus.manager.products.model.repository.impl.LojaRepository;
-
-import java.util.List;
 
 public class LojaController implements IController<Loja> {
 

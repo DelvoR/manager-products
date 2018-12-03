@@ -1,6 +1,7 @@
 package br.com.mateus.manager.products.view;
 
 import br.com.mateus.manager.products.controller.impl.ProdutoController;
+import br.com.mateus.manager.products.model.entity.Loja;
 import br.com.mateus.manager.products.model.entity.Produto;
 import br.com.mateus.manager.products.model.enums.Operacao;
 import br.com.mateus.manager.products.utils.ColumnTitle;
@@ -22,22 +23,19 @@ import java.util.List;
 import static br.com.mateus.manager.products.utils.JOptionUtils.clearFields;
 import static br.com.mateus.manager.products.utils.JOptionUtils.openFields;
 
-import java.awt.event.ActionEvent;
-
 public class ProdutoView extends JInternalFrame {
 
 	private static final long serialVersionUID = 2538628797157567245L;
 	private static final int NO_SELECTED_ROWS = -1;
 	private static final int NO_ROWS = 0;
-	private static ProdutoView instance;
 	private DefaultTableModel tableModel;
 	private Integer operacao;
-	private Long produtoId;
+	private static Loja loja;
+	private static List<Produto> produtos;
 
 	private JTable tableProduto;
 	private JButton btnNovo;
 	private JButton btnExcluir;
-	private JButton btnPesquisa;
 	private JButton btnSalvar;
 	private JButton btnCancelar;
 	private JButton btnEditar;
@@ -47,18 +45,11 @@ public class ProdutoView extends JInternalFrame {
 	private JTextField txtQuantidade;
 	private JTextField txtPreco;
 
-	/**
-	 * Create the frame.
-	 */
 	private ProdutoView() {
 		initComponents();
 		carregarDadosTabela();
-
 	}
 
-	/**
-	 * Launch the application.
-	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(() -> {
 			try {
@@ -70,11 +61,8 @@ public class ProdutoView extends JInternalFrame {
 		});
 	}
 
-	static ProdutoView getInstance() {
-		if (instance == null) {
-			instance = new ProdutoView();
-		}
-		return instance;
+	public static ProdutoView getInstance() {
+		return new ProdutoView();
 	}
 
 	private void initComponents() {
@@ -129,32 +117,13 @@ public class ProdutoView extends JInternalFrame {
 		gridBtnExcluir.gridy = 0;
 		panelAcoes.add(btnExcluir, gridBtnExcluir);
 
-		btnPesquisa = new JButton("Pesquisa");
-		btnPesquisa.addActionListener(actionPerformedBtnPesquisa());
-		btnPesquisa.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		GridBagConstraints gridBtnPesquisa = new GridBagConstraints();
-		gridBtnPesquisa.fill = GridBagConstraints.BOTH;
-		gridBtnPesquisa.insets = new Insets(0, 0, 0, 5);
-		gridBtnPesquisa.gridx = 3;
-		gridBtnPesquisa.gridy = 0;
-		panelAcoes.add(btnPesquisa, gridBtnPesquisa);
-
-		JButton btnLojas = new JButton("Lojas");
-		btnLojas.setEnabled(false);
-		btnLojas.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		GridBagConstraints gridBtnLojas = new GridBagConstraints();
-		gridBtnLojas.fill = GridBagConstraints.BOTH;
-		gridBtnLojas.gridx = 4;
-		gridBtnLojas.gridy = 0;
-		panelAcoes.add(btnLojas, gridBtnLojas);
-
 		JPanel panelTableProduto = new JPanel();
-		panelTableProduto.setBounds(10, 253, 707, 189);
+		panelTableProduto.setBounds(10, 178, 707, 264);
 		getContentPane().add(panelTableProduto);
 		panelTableProduto.setLayout(null);
 
 		JScrollPane scrollPaneProduto = new JScrollPane();
-		scrollPaneProduto.setBounds(10, 11, 687, 167);
+		scrollPaneProduto.setBounds(10, 11, 687, 242);
 		panelTableProduto.add(scrollPaneProduto);
 
 		tableProduto = new JTable();
@@ -167,7 +136,7 @@ public class ProdutoView extends JInternalFrame {
 		JPanel panelProduto = new JPanel();
 		panelProduto.setBorder(
 				new TitledBorder(null, "Dados do Produto", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelProduto.setBounds(10, 61, 578, 154);
+		panelProduto.setBounds(10, 61, 578, 106);
 		getContentPane().add(panelProduto);
 		panelProduto.setLayout(null);
 
@@ -183,22 +152,10 @@ public class ProdutoView extends JInternalFrame {
 
 		JLabel lblPreo = new JLabel("Pre\u00E7o:");
 		lblPreo.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblPreo.setBounds(49, 81, 49, 20);
+		lblPreo.setBounds(250, 50, 49, 20);
 		panelProduto.add(lblPreo);
 
-		JLabel lblCategoria = new JLabel("Categoria:");
-		lblCategoria.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblCategoria.setBounds(250, 50, 88, 20);
-		panelProduto.add(lblCategoria);
-
-		JLabel lblSubcategoria = new JLabel("Sub-Categoria:");
-		lblSubcategoria.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblSubcategoria.setBounds(250, 78, 88, 20);
-		panelProduto.add(lblSubcategoria);
-
 		txtNomeProduto = new JTextField();
-		txtNomeProduto.setEnabled(false);
-		txtNomeProduto.setEditable(false);
 		txtNomeProduto.setBounds(108, 22, 460, 20);
 		panelProduto.add(txtNomeProduto);
 		txtNomeProduto.setColumns(10);
@@ -213,29 +170,20 @@ public class ProdutoView extends JInternalFrame {
 		txtPreco = new JTextField();
 		txtPreco.setEditable(false);
 		txtPreco.setEnabled(false);
-		txtPreco.setBounds(108, 81, 132, 20);
+		txtPreco.setBounds(309, 50, 132, 20);
 		panelProduto.add(txtPreco);
 		txtPreco.setColumns(10);
 
-		JComboBox comboBoxCategoria = new JComboBox();
-		comboBoxCategoria.setBounds(348, 50, 220, 20);
-		panelProduto.add(comboBoxCategoria);
-
-		JComboBox comboBoxSubCategoria = new JComboBox();
-		comboBoxSubCategoria.setBounds(348, 78, 220, 20);
-		panelProduto.add(comboBoxSubCategoria);
-
 		btnPesquisar = new JButton("Pesquisar");
 		btnPesquisar.addActionListener(actionPerformedBtnPesquisar());
-		btnPesquisar.setEnabled(false);
-		btnPesquisar.setBounds(479, 120, 89, 23);
+		btnPesquisar.setBounds(449, 72, 119, 23);
 		panelProduto.add(btnPesquisar);
 
 		panelAcoesComplementares = new JPanel();
 		panelAcoesComplementares.setLayout(null);
 		panelAcoesComplementares.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"),
 				"A\u00E7\u00F5es", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelAcoesComplementares.setBounds(598, 61, 119, 116);
+		panelAcoesComplementares.setBounds(598, 61, 119, 106);
 		getContentPane().add(panelAcoesComplementares);
 
 		btnSalvar = new JButton("Salvar");
@@ -269,13 +217,6 @@ public class ProdutoView extends JInternalFrame {
 		};
 	}
 
-	private ActionListener actionPerformedBtnPesquisa() {
-		return actionEvent -> {
-			JOptionUtils.openFields(true, btnCancelar, txtNomeProduto, btnPesquisar);
-			JOptionUtils.openFields(false, btnNovo, btnExcluir, btnSalvar, btnEditar);
-		};
-	}
-
 	private ActionListener actionPerformedBtnExcluir() {
 		return actionEvent -> {
 			operacao = Operacao.EXCLUIR.getOperacao();
@@ -306,7 +247,7 @@ public class ProdutoView extends JInternalFrame {
 					JOptionUtils.mostrarMensagem("Deve ser selecionado um produto!");
 				}
 			} else {
-				JOptionUtils.openFields(false, btnExcluir, btnNovo, btnPesquisa);
+				JOptionUtils.openFields(false, btnExcluir, btnNovo);
 				JOptionUtils.openFields(true, panelAcoesComplementares, btnSalvar, txtNomeProduto, txtQuantidade, txtPreco, btnCancelar);
 			}
 		};
@@ -321,6 +262,7 @@ public class ProdutoView extends JInternalFrame {
 			Produto produto = new Produto.Builder().descricao(txtNomeProduto.getText())
 					.quantidade(Double.parseDouble(txtQuantidade.getText()))
 					.valor(Double.parseDouble(txtPreco.getText()))
+					.loja(loja)
 					.build();
 
 			if (StringUtils.isNotBlank(produto.getDescricao())) {
@@ -357,12 +299,6 @@ public class ProdutoView extends JInternalFrame {
 				JOptionUtils.setValueToFieldFromTable(tableProduto, ColumnTitle.DESCRICAO, txtNomeProduto);
 				JOptionUtils.setValueToFieldFromTable(tableProduto, ColumnTitle.QUANTIDADE, txtQuantidade);
 				JOptionUtils.setValueToFieldFromTable(tableProduto, ColumnTitle.PRECO, txtPreco);
-
-				// produtoId = Long.valueOf(JOptionUtils.getValueFromColumn(tableProduto,
-				// ColumnTitle.ID));
-				// ProdutoController produtoController = new ProdutoController();
-				// produtoController.buscar(produtoId);
-
 			}
 		};
 	}
@@ -370,19 +306,14 @@ public class ProdutoView extends JInternalFrame {
 	private ActionListener actionPerformedBtnNovo() {
 		return actionEvent -> {
 			operacao = Operacao.NOVO.getOperacao();
-			JOptionUtils.openFields(false, btnEditar, btnExcluir, btnPesquisa, btnNovo, btnPesquisar);
+			JOptionUtils.openFields(false, btnEditar, btnExcluir, btnNovo, btnPesquisar);
 			JOptionUtils.openFields(true, txtNomeProduto, txtQuantidade, txtPreco, btnSalvar, btnCancelar, panelAcoesComplementares);
 			clearAllFields();
 		};
 	}
 
 	private void carregarDadosTabela() {
-		ProdutoController produtoController = new ProdutoController();
-		List<Produto> produtos = produtoController.buscarTodos();
-
-		tableProduto.getColumnModel().getColumn(0).setPreferredWidth(5);
 		tableModel = (DefaultTableModel) tableProduto.getModel();
-
 		for (Produto produto : produtos) {
 			tableModel.addRow(new Object[]{
 					produto.getId(),
@@ -406,9 +337,9 @@ public class ProdutoView extends JInternalFrame {
 	}
 
 	private void voltarTelaParaSituacaoParaInicial() {
-		openFields(false, btnEditar, btnExcluir, btnPesquisa, panelAcoesComplementares, btnSalvar, btnCancelar,
+		openFields(false, btnEditar, btnExcluir, panelAcoesComplementares, btnSalvar, btnCancelar,
 				txtNomeProduto, txtQuantidade, txtPreco);
-		openFields(true, btnNovo, btnPesquisa);
+		openFields(true, btnNovo);
 		removerFiltroTabela();
 		clearAllFields();
 	}
@@ -422,5 +353,13 @@ public class ProdutoView extends JInternalFrame {
 
 	private void clearAllFields() {
 		clearFields(txtNomeProduto, txtQuantidade, txtPreco);
+	}
+
+	public static void setProdutos(List<Produto> produtos) {
+		ProdutoView.produtos = produtos;
+	}
+
+	public static void setLoja(Loja loja) {
+		ProdutoView.loja = loja;
 	}
 }

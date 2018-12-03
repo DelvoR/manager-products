@@ -41,7 +41,7 @@ public class JOptionUtils {
 	public static void clearFields(Object... objects) {
 		for (Object object : objects) {
 			if (object instanceof JTextField) {
-				((JTextField) object).setText("");
+				((JTextField) object).setText(null);
 			} else if (object instanceof JDateChooser) {
 				((JDateChooser) object).setDate(null);
 			} else if (object instanceof JRadioButton) {

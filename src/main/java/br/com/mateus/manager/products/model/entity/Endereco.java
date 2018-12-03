@@ -1,19 +1,16 @@
 package br.com.mateus.manager.products.model.entity;
 
-import br.com.mateus.manager.products.model.enums.Estado;
-import lombok.Data;
-
-import javax.persistence.*;
 import java.io.Serializable;
 
-@Data
+import javax.persistence.*;
+
+import br.com.mateus.manager.products.model.enums.Estado;
+
 @Entity
 public class Endereco implements Serializable {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = -3662464678421388074L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "endereco_sequence")
 	private Long id;
@@ -36,6 +33,7 @@ public class Endereco implements Serializable {
 		cep = builder.cep;
 		complemento = builder.complemento;
 		cidade = builder.cidade;
+		uf = builder.uf;
 	}
 
 	public static class Builder {
@@ -46,7 +44,6 @@ public class Endereco implements Serializable {
 		private String cep;
 		private String complemento;
 		private String cidade;
-		@SuppressWarnings("unused")
 		private Estado uf;
 
 		public Builder rua(String rua) {
@@ -78,19 +75,78 @@ public class Endereco implements Serializable {
 			this.cidade = cidade;
 			return this;
 		}
-
+		
 		public Builder uf(String uf) {
 			this.uf = Estado.fromString(uf);
-			return this;
-		}
-		
-		public Builder uf(Estado uf) {
-			this.uf = uf;
 			return this;
 		}
 
 		public Endereco build() {
 			return new Endereco(this);
 		}
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getRua() {
+		return rua;
+	}
+
+	public void setRua(String rua) {
+		this.rua = rua;
+	}
+
+	public Integer getNumero() {
+		return numero;
+	}
+
+	public void setNumero(Integer numero) {
+		this.numero = numero;
+	}
+
+	public String getBairro() {
+		return bairro;
+	}
+
+	public void setBairro(String bairro) {
+		this.bairro = bairro;
+	}
+
+	public String getCep() {
+		return cep;
+	}
+
+	public void setCep(String cep) {
+		this.cep = cep;
+	}
+
+	public String getComplemento() {
+		return complemento;
+	}
+
+	public void setComplemento(String complemento) {
+		this.complemento = complemento;
+	}
+
+	public String getCidade() {
+		return cidade;
+	}
+
+	public void setCidade(String cidade) {
+		this.cidade = cidade;
+	}
+
+	public Estado getUf() {
+		return uf;
+	}
+
+	public void setUf(Estado uf) {
+		this.uf = uf;
 	}
 }

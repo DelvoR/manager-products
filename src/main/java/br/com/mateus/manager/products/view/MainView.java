@@ -10,26 +10,16 @@ import java.awt.event.ActionListener;
 
 public class MainView extends JFrame {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = -6823654718026202464L;
 	private static JDesktopPane desktop;
-	private JPanel contentPane;
 	private JanelaUtils janelaUtils;
 
-	/**
-	 * Create the frame.
-	 */
-	public MainView() {
+	private MainView() {
 		initComponents();
 		janelaUtils = new JanelaUtils(desktop);
 		initConnection();
 	}
 
-	/**
-	 * Launch the application.
-	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(() -> {
 			try {
@@ -41,9 +31,6 @@ public class MainView extends JFrame {
 		});
 	}
 
-	/**
-	 * @return the desktop
-	 */
 	static JDesktopPane getDesktop() {
 		return desktop;
 	}
@@ -52,7 +39,7 @@ public class MainView extends JFrame {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 972, 692);
-		contentPane = new JPanel();
+		JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(null);
 		setContentPane(contentPane);
@@ -67,11 +54,11 @@ public class MainView extends JFrame {
 		contentPane.add(panel);
 		panel.setLayout(null);
 
-		JButton btnProdutos = new JButton("Produtos");
-		btnProdutos.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		btnProdutos.addActionListener(actionPerformedBtnProdutos());
-		btnProdutos.setBounds(327, 11, 111, 44);
-		panel.add(btnProdutos);
+		JButton btnPesquisarProdutos = new JButton("Pesquisar Produtos");
+		btnPesquisarProdutos.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		btnPesquisarProdutos.addActionListener(actionPerformedBtnPesquisarProdutos());
+		btnPesquisarProdutos.setBounds(327, 11, 213, 44);
+		panel.add(btnPesquisarProdutos);
 
 		JButton btnLojas = new JButton("Lojas");
 		btnLojas.addActionListener(actionPerformedLojas());
@@ -83,24 +70,14 @@ public class MainView extends JFrame {
 		btnUsurios.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		btnUsurios.setBounds(654, 11, 111, 44);
 		panel.add(btnUsurios);
-
-		JButton btnPesquisaAvanada = new JButton("Pesquisa Avan\u00E7ada");
-		btnPesquisaAvanada.addActionListener(actionPerformedBtnPesquisaAvancada());
-		btnPesquisaAvanada.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		btnPesquisaAvanada.setBounds(448, 11, 196, 44);
-		panel.add(btnPesquisaAvanada);
 	}
 
 	private ActionListener actionPerformedLojas() {
 		return actionEvent -> janelaUtils.abrirInternalFrame(LojaView.getInstance());
 	}
 
-	private ActionListener actionPerformedBtnProdutos() {
-		return actionEvent -> janelaUtils.abrirInternalFrame(ProdutoView.getInstance());
-	}
-
-	private ActionListener actionPerformedBtnPesquisaAvancada() {
-		return actionEvent -> janelaUtils.abrirInternalFrame(PesquisaView.getInstance());
+	private ActionListener actionPerformedBtnPesquisarProdutos() {
+		return actionEvent -> janelaUtils.abrirInternalFrame(PesquisaProdutoView.getInstance());
 	}
 
 	private void initConnection() {

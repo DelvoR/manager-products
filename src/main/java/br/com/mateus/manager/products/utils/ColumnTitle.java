@@ -2,10 +2,10 @@ package br.com.mateus.manager.products.utils;
 
 public enum ColumnTitle {
 
-    ID("id"), 
-    CNPJ("cnpj"), 
-    RAZAO_SOCIAL("Raz\u00E3o Social"), 
-    CIDADE("cidade"), 
+    ID("C\u00f3digo"),
+    CNPJ("cnpj"),
+    RAZAO_SOCIAL("Raz\u00E3o Social"),
+    CIDADE("cidade"),
     BAIRRO("bairro"),
     DESCRICAO("Descri\u00E7\u00E3o"),
     QUANTIDADE("quantidade"),

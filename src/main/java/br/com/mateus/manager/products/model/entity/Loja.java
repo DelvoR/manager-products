@@ -1,12 +1,9 @@
 package br.com.mateus.manager.products.model.entity;
 
-import lombok.Data;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
-@Data
 @Entity
 public class Loja implements Serializable {
 
@@ -20,9 +17,10 @@ public class Loja implements Serializable {
 	@Column(name = "razao_social")
 	private String razaoSocial;
 	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(foreignKey = @ForeignKey(name = "loja_fk"))
+	@JoinColumn(name = "endereco_id")
 	private Endereco endereco;
-	@ManyToMany
+	@OneToMany(mappedBy = "loja", targetEntity = Produto.class
+			, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Produto> produtos;
 	private String cnpj;
 
@@ -33,6 +31,46 @@ public class Loja implements Serializable {
 	public Loja(String razaoSocial, Endereco endereco, String cnpj) {
 		this.razaoSocial = razaoSocial;
 		this.endereco = endereco;
+		this.cnpj = cnpj;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getRazaoSocial() {
+		return razaoSocial;
+	}
+
+	public void setRazaoSocial(String razaoSocial) {
+		this.razaoSocial = razaoSocial;
+	}
+
+	public Endereco getEndereco() {
+		return endereco;
+	}
+
+	public void setEndereco(Endereco endereco) {
+		this.endereco = endereco;
+	}
+
+	public List<Produto> getProdutos() {
+		return produtos;
+	}
+
+	public void setProdutos(List<Produto> produtos) {
+		this.produtos = produtos;
+	}
+
+	public String getCnpj() {
+		return cnpj;
+	}
+
+	public void setCnpj(String cnpj) {
 		this.cnpj = cnpj;
 	}
 }
