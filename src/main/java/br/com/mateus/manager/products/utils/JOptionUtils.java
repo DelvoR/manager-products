@@ -13,7 +13,7 @@ public class JOptionUtils {
 
 	/**
 	 * TODO
-	 * 
+	 *
 	 * @param ativo
 	 * @param objects
 	 */
@@ -28,13 +28,11 @@ public class JOptionUtils {
 				((JRadioButton) object).setEnabled(ativo);
 			} else if (object instanceof JDateChooser) {
 				((JDateChooser) object).setEnabled(ativo);
-			} else if (object instanceof JButton) {
-				((JButton) object).setEnabled(ativo);
-            } else if (object instanceof JPanel) {
-                ((JPanel) object).setEnabled(ativo);
-            } else if (object instanceof JComboBox) {
-                ((JComboBox<?>) object).setEnabled(ativo);
-            }
+			} else if (object instanceof JPanel) {
+				((JPanel) object).setEnabled(ativo);
+			} else if (object instanceof JComboBox) {
+				((JComboBox<?>) object).setEnabled(ativo);
+			}
 		}
 	}
 

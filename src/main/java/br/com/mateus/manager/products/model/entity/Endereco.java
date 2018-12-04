@@ -75,7 +75,7 @@ public class Endereco implements Serializable {
 			this.cidade = cidade;
 			return this;
 		}
-		
+
 		public Builder uf(String uf) {
 			this.uf = Estado.fromString(uf);
 			return this;
@@ -148,5 +148,13 @@ public class Endereco implements Serializable {
 
 	public void setUf(Estado uf) {
 		this.uf = uf;
+	}
+
+	@Override
+	public String toString() {
+		return "Rua " + rua +
+				", N.: " + numero +
+				", Bairro: " + bairro +
+				" - CEP: " + cep;
 	}
 }

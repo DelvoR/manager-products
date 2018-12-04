@@ -1,25 +1,17 @@
 package br.com.mateus.manager.products.view;
 
-import br.com.mateus.manager.products.controller.impl.LojaController;
-import br.com.mateus.manager.products.model.entity.Endereco;
-import br.com.mateus.manager.products.model.entity.Loja;
-import br.com.mateus.manager.products.model.enums.Estado;
-import br.com.mateus.manager.products.model.enums.Operacao;
-import br.com.mateus.manager.products.utils.ColumnTitle;
-import br.com.mateus.manager.products.utils.JOptionUtils;
-import br.com.mateus.manager.products.utils.JanelaUtils;
-import br.com.mateus.manager.products.utils.Title;
-import org.apache.commons.lang3.StringUtils;
+import static br.com.mateus.manager.products.utils.JOptionUtils.clearFields;
+import static br.com.mateus.manager.products.utils.JOptionUtils.getValueFromColumn;
+import static br.com.mateus.manager.products.utils.JOptionUtils.isTrue;
+import static br.com.mateus.manager.products.utils.JOptionUtils.mostrarInformacao;
+import static br.com.mateus.manager.products.utils.JOptionUtils.mostrarMensagem;
+import static br.com.mateus.manager.products.utils.JOptionUtils.openFields;
+import static br.com.mateus.manager.products.utils.JOptionUtils.setValueToFieldFromTable;
+import static br.com.mateus.manager.products.utils.JOptionUtils.yesOrNo;
 
-import javax.swing.*;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
-import javax.swing.text.MaskFormatter;
-
-import java.awt.*;
+import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -29,7 +21,38 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static br.com.mateus.manager.products.utils.JOptionUtils.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+import javax.swing.text.MaskFormatter;
+
+import org.apache.commons.lang3.StringUtils;
+
+import br.com.mateus.manager.products.controller.impl.LojaController;
+import br.com.mateus.manager.products.model.entity.Endereco;
+import br.com.mateus.manager.products.model.entity.Loja;
+import br.com.mateus.manager.products.model.enums.Estado;
+import br.com.mateus.manager.products.model.enums.Operacao;
+import br.com.mateus.manager.products.utils.ColumnTitle;
+import br.com.mateus.manager.products.utils.JOptionUtils;
+import br.com.mateus.manager.products.utils.JanelaUtils;
+import br.com.mateus.manager.products.utils.Title;
 
 public class LojaView extends JInternalFrame {
 
@@ -52,14 +75,14 @@ public class LojaView extends JInternalFrame {
 	private JTextField txtComplemento;
 	private JTextField txtCidade;
 	private JTable tableLoja;
-
-	private JButton btnNovo;
-	private JButton btnEditar;
-	private JButton btnExcluir;
 	private JButton btnPesquisar;
 	private JPanel panelAcoesComplementares;
 	private JButton btnCancelar;
 	private JButton btnSalvar;
+	private JMenuBar menuBar;
+	private JButton btnNovo;
+	private JButton btnEditar;
+	private JButton btnExcluir;
 	private JButton btnProdutos;
 
 	private static final LojaController lojaController = new LojaController();
@@ -98,75 +121,19 @@ public class LojaView extends JInternalFrame {
 		setBounds(100, 100, 744, 474);
 		getContentPane().setLayout(null);
 
-		JPanel panelAcoes = new JPanel();
-		panelAcoes.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		panelAcoes.setBounds(0, 0, 736, 50);
-		getContentPane().add(panelAcoes);
-		GridBagLayout gridPanelAcoes = new GridBagLayout();
-		gridPanelAcoes.columnWidths = new int[] { 123, 123, 124, 123, 123, 0 };
-		gridPanelAcoes.rowHeights = new int[] { 33, 0 };
-		gridPanelAcoes.columnWeights = new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE };
-		gridPanelAcoes.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
-		panelAcoes.setLayout(gridPanelAcoes);
-
-		btnEditar = new JButton("Editar");
-		btnEditar.setEnabled(false);
-		btnEditar.addActionListener(actionPerformedBtnEditar());
-
-		btnNovo = new JButton("Novo");
-		btnNovo.addActionListener(actionPerformedBtnNovo());
-		btnNovo.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		GridBagConstraints gridBtnNovo = new GridBagConstraints();
-		gridBtnNovo.fill = GridBagConstraints.BOTH;
-		gridBtnNovo.insets = new Insets(0, 0, 0, 5);
-		gridBtnNovo.gridx = 0;
-		gridBtnNovo.gridy = 0;
-		panelAcoes.add(btnNovo, gridBtnNovo);
-
-		btnEditar.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		GridBagConstraints gridBtnEditar = new GridBagConstraints();
-		gridBtnEditar.fill = GridBagConstraints.BOTH;
-		gridBtnEditar.insets = new Insets(0, 0, 0, 5);
-		gridBtnEditar.gridx = 1;
-		gridBtnEditar.gridy = 0;
-		panelAcoes.add(btnEditar, gridBtnEditar);
-
-		btnExcluir = new JButton("Excluir");
-		btnExcluir.setEnabled(false);
-		btnExcluir.addActionListener(actionPerfomedBtnExcluir());
-		btnExcluir.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		GridBagConstraints gridBtnExcluir = new GridBagConstraints();
-		gridBtnExcluir.fill = GridBagConstraints.BOTH;
-		gridBtnExcluir.insets = new Insets(0, 0, 0, 5);
-		gridBtnExcluir.gridx = 2;
-		gridBtnExcluir.gridy = 0;
-		panelAcoes.add(btnExcluir, gridBtnExcluir);
-
-		btnProdutos = new JButton("Produtos");
-		btnProdutos.setEnabled(false);
-		btnProdutos.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		btnProdutos.addActionListener(actionPerformedBtnProdutos());
-
-		GridBagConstraints gridBtnProdutos = new GridBagConstraints();
-		gridBtnProdutos.fill = GridBagConstraints.BOTH;
-		gridBtnProdutos.insets = new Insets(0, 0, 0, 5);
-		gridBtnProdutos.gridx = 3;
-		gridBtnProdutos.gridy = 0;
-		panelAcoes.add(btnProdutos, gridBtnProdutos);
-
 		JLabel lblRazaoSocial = new JLabel("Raz\u00E3o Social:");
 		lblRazaoSocial.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblRazaoSocial.setBounds(63, 89, 78, 20);
+		lblRazaoSocial.setBounds(64, 41, 78, 20);
 		getContentPane().add(lblRazaoSocial);
 
 		txtRazaoSocial = new JTextField();
-		txtRazaoSocial.setBounds(151, 89, 179, 20);
+		txtRazaoSocial.setBounds(152, 41, 179, 20);
 		getContentPane().add(txtRazaoSocial);
 		txtRazaoSocial.setColumns(10);
 
 		JLabel lblCnpj = new JLabel("CNPJ:");
 		lblCnpj.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblCnpj.setBounds(340, 89, 45, 20);
+		lblCnpj.setBounds(341, 41, 45, 20);
 		getContentPane().add(lblCnpj);
 
 		while (true) {
@@ -187,7 +154,7 @@ public class LojaView extends JInternalFrame {
 		JPanel panelEndereco = new JPanel();
 		panelEndereco
 				.setBorder(new TitledBorder(null, "Endere\u00E7o", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelEndereco.setBounds(10, 117, 579, 116);
+		panelEndereco.setBounds(11, 69, 579, 116);
 		getContentPane().add(panelEndereco);
 		panelEndereco.setLayout(null);
 
@@ -281,12 +248,12 @@ public class LojaView extends JInternalFrame {
 		panelEndereco.add(txtCidade);
 
 		JPanel panelTableLoja = new JPanel();
-		panelTableLoja.setBounds(11, 244, 707, 189);
+		panelTableLoja.setBounds(11, 196, 707, 237);
 		getContentPane().add(panelTableLoja);
 		panelTableLoja.setLayout(null);
 
 		JScrollPane scrollPaneLoja = new JScrollPane();
-		scrollPaneLoja.setBounds(10, 11, 687, 167);
+		scrollPaneLoja.setBounds(10, 11, 687, 215);
 		panelTableLoja.add(scrollPaneLoja);
 
 		tableLoja = new JTable();
@@ -299,7 +266,7 @@ public class LojaView extends JInternalFrame {
 		panelAcoesComplementares = new JPanel();
 		panelAcoesComplementares.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"),
 				"A\u00E7\u00F5es", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelAcoesComplementares.setBounds(599, 117, 119, 116);
+		panelAcoesComplementares.setBounds(599, 69, 119, 116);
 		getContentPane().add(panelAcoesComplementares);
 		panelAcoesComplementares.setLayout(null);
 
@@ -321,8 +288,32 @@ public class LojaView extends JInternalFrame {
 
 		btnPesquisar = new JButton("Pesquisar");
 		btnPesquisar.addActionListener(actionPerformedBtnPesquisar());
-		btnPesquisar.setBounds(599, 89, 119, 20);
+		btnPesquisar.setBounds(599, 41, 119, 20);
 		getContentPane().add(btnPesquisar);
+		
+		menuBar = new JMenuBar();
+		menuBar.setBounds(0, 0, 728, 30);
+		getContentPane().add(menuBar);
+		
+		btnNovo = new JButton("Novo");
+		btnNovo.addActionListener(actionPerformedBtnNovo());
+		btnNovo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		menuBar.add(btnNovo);
+		
+		btnEditar = new JButton("Editar");
+		btnEditar.addActionListener(actionPerformedBtnEditar());
+		btnEditar.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		menuBar.add(btnEditar);
+		
+		btnExcluir = new JButton("Excluir");
+		btnExcluir.addActionListener(actionPerfomedBtnExcluir());
+		btnExcluir.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		menuBar.add(btnExcluir);
+		
+		btnProdutos = new JButton("Produtos");
+		btnProdutos.addActionListener(actionPerformedBtnProdutos());
+		btnProdutos.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		menuBar.add(btnProdutos);
 	}
 
 	private ActionListener actionPerformedBtnProdutos() {
@@ -465,8 +456,7 @@ public class LojaView extends JInternalFrame {
 						tableModel.setValueAt(getBairro(), tableLoja.getSelectedRow(), 4);
 					}
 				} catch (Exception e) {
-					JOptionPane.showMessageDialog(null, "Loja " + getRazaoSocial() + " cadastrada com sucesso!", "Sucesso",
-							JOptionPane.INFORMATION_MESSAGE);
+					throw e;
 				}
 			} else {
 				JOptionPane.showMessageDialog(null,
@@ -538,6 +528,7 @@ public class LojaView extends JInternalFrame {
 		} catch (ParseException ignored) {
 		}
 		for (Loja loja : lojas) {
+			cnpj.setText(loja.getCnpj());
 			tableModel.addRow(new Object[] { loja.getId(), cnpj != null ? cnpj.getText() : "CNPJ inv\u00e1lido", loja.getRazaoSocial(),
 					loja.getEndereco().getCidade(), loja.getEndereco().getBairro() });
 		}

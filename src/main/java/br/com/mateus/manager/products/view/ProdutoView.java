@@ -1,5 +1,36 @@
 package br.com.mateus.manager.products.view;
 
+import static br.com.mateus.manager.products.utils.JOptionUtils.clearFields;
+import static br.com.mateus.manager.products.utils.JOptionUtils.openFields;
+
+import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuBar;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import br.com.mateus.manager.products.controller.impl.ProdutoController;
 import br.com.mateus.manager.products.model.entity.Loja;
 import br.com.mateus.manager.products.model.entity.Produto;
@@ -7,21 +38,6 @@ import br.com.mateus.manager.products.model.enums.Operacao;
 import br.com.mateus.manager.products.utils.ColumnTitle;
 import br.com.mateus.manager.products.utils.JOptionUtils;
 import br.com.mateus.manager.products.utils.Title;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.List;
-
-import static br.com.mateus.manager.products.utils.JOptionUtils.clearFields;
-import static br.com.mateus.manager.products.utils.JOptionUtils.openFields;
 
 public class ProdutoView extends JInternalFrame {
 
@@ -30,20 +46,22 @@ public class ProdutoView extends JInternalFrame {
 	private static final int NO_ROWS = 0;
 	private DefaultTableModel tableModel;
 	private Integer operacao;
+	private Long produtoId;
 	private static Loja loja;
 	private static List<Produto> produtos;
 
 	private JTable tableProduto;
-	private JButton btnNovo;
-	private JButton btnExcluir;
 	private JButton btnSalvar;
 	private JButton btnCancelar;
-	private JButton btnEditar;
 	private JButton btnPesquisar;
 	private JPanel panelAcoesComplementares;
-	private JTextField txtNomeProduto;
+	private JTextField txtDescricao;
 	private JTextField txtQuantidade;
 	private JTextField txtPreco;
+	private JMenuBar menuBar;
+	private JButton btnNovo;
+	private JButton btnEditar;
+	private JButton btnExcluir;
 
 	private ProdutoView() {
 		initComponents();
@@ -73,70 +91,26 @@ public class ProdutoView extends JInternalFrame {
 		setBounds(100, 100, 744, 474);
 		getContentPane().setLayout(null);
 
-		JPanel panelAcoes = new JPanel();
-		panelAcoes.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "", TitledBorder.LEADING,
-				TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelAcoes.setBounds(0, 0, 736, 50);
-		getContentPane().add(panelAcoes);
-		GridBagLayout gridPanelAcoes = new GridBagLayout();
-		gridPanelAcoes.columnWidths = new int[]{123, 123, 124, 123, 123, 0};
-		gridPanelAcoes.rowHeights = new int[]{33, 0};
-		gridPanelAcoes.columnWeights = new double[]{1.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE};
-		gridPanelAcoes.rowWeights = new double[]{1.0, Double.MIN_VALUE};
-		panelAcoes.setLayout(gridPanelAcoes);
-
-		btnNovo = new JButton("Novo");
-		btnNovo.addActionListener(actionPerformedBtnNovo());
-		btnNovo.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		GridBagConstraints gridBtnNovo = new GridBagConstraints();
-		gridBtnNovo.fill = GridBagConstraints.BOTH;
-		gridBtnNovo.insets = new Insets(0, 0, 0, 5);
-		gridBtnNovo.gridx = 0;
-		gridBtnNovo.gridy = 0;
-		panelAcoes.add(btnNovo, gridBtnNovo);
-
-		btnEditar = new JButton("Editar");
-		btnEditar.setEnabled(false);
-		btnEditar.addActionListener(actionPerformedBntEditar());
-		btnEditar.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		GridBagConstraints gridBtnEditar = new GridBagConstraints();
-		gridBtnEditar.fill = GridBagConstraints.BOTH;
-		gridBtnEditar.insets = new Insets(0, 0, 0, 5);
-		gridBtnEditar.gridx = 1;
-		gridBtnEditar.gridy = 0;
-		panelAcoes.add(btnEditar, gridBtnEditar);
-
-		btnExcluir = new JButton("Excluir");
-		btnExcluir.addActionListener(actionPerformedBtnExcluir());
-		btnExcluir.setEnabled(false);
-		btnExcluir.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		GridBagConstraints gridBtnExcluir = new GridBagConstraints();
-		gridBtnExcluir.fill = GridBagConstraints.BOTH;
-		gridBtnExcluir.insets = new Insets(0, 0, 0, 5);
-		gridBtnExcluir.gridx = 2;
-		gridBtnExcluir.gridy = 0;
-		panelAcoes.add(btnExcluir, gridBtnExcluir);
-
 		JPanel panelTableProduto = new JPanel();
-		panelTableProduto.setBounds(10, 178, 707, 264);
+		panelTableProduto.setBounds(10, 149, 707, 293);
 		getContentPane().add(panelTableProduto);
 		panelTableProduto.setLayout(null);
 
 		JScrollPane scrollPaneProduto = new JScrollPane();
-		scrollPaneProduto.setBounds(10, 11, 687, 242);
+		scrollPaneProduto.setBounds(10, 11, 687, 271);
 		panelTableProduto.add(scrollPaneProduto);
 
 		tableProduto = new JTable();
 		tableProduto.addMouseListener(mouseClickedProduto());
 
-		tableProduto.setModel(new DefaultTableModel(new Object[][]{},
-				new String[]{"C\u00F3digo", "Descri\u00E7\u00E3o", "Quantidade", "Pre\u00E7o"}));
+		tableProduto.setModel(new DefaultTableModel(new Object[][] {},
+				new String[] { "C\u00F3digo", "Descri\u00E7\u00E3o", "Quantidade", "Pre\u00E7o" }));
 		scrollPaneProduto.setViewportView(tableProduto);
 
 		JPanel panelProduto = new JPanel();
 		panelProduto.setBorder(
 				new TitledBorder(null, "Dados do Produto", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panelProduto.setBounds(10, 61, 578, 106);
+		panelProduto.setBounds(10, 32, 578, 106);
 		getContentPane().add(panelProduto);
 		panelProduto.setLayout(null);
 
@@ -155,10 +129,10 @@ public class ProdutoView extends JInternalFrame {
 		lblPreo.setBounds(250, 50, 49, 20);
 		panelProduto.add(lblPreo);
 
-		txtNomeProduto = new JTextField();
-		txtNomeProduto.setBounds(108, 22, 460, 20);
-		panelProduto.add(txtNomeProduto);
-		txtNomeProduto.setColumns(10);
+		txtDescricao = new JTextField();
+		txtDescricao.setBounds(108, 22, 460, 20);
+		panelProduto.add(txtDescricao);
+		txtDescricao.setColumns(10);
 
 		txtQuantidade = new JTextField();
 		txtQuantidade.setEnabled(false);
@@ -183,7 +157,7 @@ public class ProdutoView extends JInternalFrame {
 		panelAcoesComplementares.setLayout(null);
 		panelAcoesComplementares.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"),
 				"A\u00E7\u00F5es", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panelAcoesComplementares.setBounds(598, 61, 119, 106);
+		panelAcoesComplementares.setBounds(598, 32, 119, 106);
 		getContentPane().add(panelAcoesComplementares);
 
 		btnSalvar = new JButton("Salvar");
@@ -200,6 +174,25 @@ public class ProdutoView extends JInternalFrame {
 		btnCancelar.setEnabled(false);
 		btnCancelar.setBounds(12, 65, 97, 33);
 		panelAcoesComplementares.add(btnCancelar);
+
+		menuBar = new JMenuBar();
+		menuBar.setBounds(0, 0, 728, 21);
+		getContentPane().add(menuBar);
+
+		btnNovo = new JButton("Novo");
+		btnNovo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnNovo.addActionListener(actionPerformedBtnNovo());
+		menuBar.add(btnNovo);
+
+		btnEditar = new JButton("Editar");
+		btnEditar.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnEditar.addActionListener(actionPerformedBntEditar());
+		menuBar.add(btnEditar);
+
+		btnExcluir = new JButton("Excluir");
+		btnExcluir.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnExcluir.addActionListener(actionPerformedBtnExcluir());
+		menuBar.add(btnExcluir);
 	}
 
 	private ActionListener actionPerformedBtnPesquisar() {
@@ -208,9 +201,10 @@ public class ProdutoView extends JInternalFrame {
 			TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(tableModel);
 			tableProduto.setRowSorter(rowSorter);
 
-			String nomeProduto = txtNomeProduto.getText();
+			String nomeProduto = txtDescricao.getText();
 			if (StringUtils.isNotBlank(nomeProduto)) {
 				rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + nomeProduto));
+				openFields(true, btnCancelar, panelAcoesComplementares);
 			} else {
 				rowSorter.setRowFilter(null);
 			}
@@ -247,8 +241,9 @@ public class ProdutoView extends JInternalFrame {
 					JOptionUtils.mostrarMensagem("Deve ser selecionado um produto!");
 				}
 			} else {
-				JOptionUtils.openFields(false, btnExcluir, btnNovo);
-				JOptionUtils.openFields(true, panelAcoesComplementares, btnSalvar, txtNomeProduto, txtQuantidade, txtPreco, btnCancelar);
+				JOptionUtils.openFields(false, btnExcluir, btnNovo, btnPesquisar);
+				JOptionUtils.openFields(true, panelAcoesComplementares, btnSalvar, txtDescricao, txtQuantidade,
+						txtPreco, btnCancelar);
 			}
 		};
 	}
@@ -259,10 +254,8 @@ public class ProdutoView extends JInternalFrame {
 
 	private ActionListener actionPerformedBtnSalvar() {
 		return actionEvent -> {
-			Produto produto = new Produto.Builder().descricao(txtNomeProduto.getText())
-					.quantidade(Double.parseDouble(txtQuantidade.getText()))
-					.valor(Double.parseDouble(txtPreco.getText()))
-					.loja(loja)
+			Produto produto = new Produto.Builder().descricao(txtDescricao.getText())
+					.quantidade(Double.parseDouble(getQuantidade())).valor(Double.parseDouble(getPreco())).loja(loja)
 					.build();
 
 			if (StringUtils.isNotBlank(produto.getDescricao())) {
@@ -271,15 +264,17 @@ public class ProdutoView extends JInternalFrame {
 					if (operacao.equals(Operacao.NOVO.getOperacao())) {
 						boolean resultado = produtoController.cadastrar(produto);
 						if (resultado) {
-							tableModel.addRow(new Object[]{produto.getId(), produto.getDescricao(),
-									produto.getDescricao(), produto.getValor()});
+							tableModel.addRow(new Object[] { produto.getId(), produto.getDescricao(),
+									produto.getQuantidade(), produto.getValor() });
 							JOptionUtils.mostrarInformacao(
-									"Produto " + produto.getDescricao() + " cadastrado com sucesso!",
-									Title.INFORMACAO);
-						} else if (operacao.equals(Operacao.EDITAR.getOperacao())) {
-							produtoController.atualizar(produto);
-
+									"Produto " + produto.getDescricao() + " cadastrado com sucesso!", Title.INFORMACAO);
 						}
+					} else if (operacao.equals(Operacao.EDITAR.getOperacao())) {
+						produto.setId(produtoId);
+						produtoController.atualizar(produto);
+						tableModel.setValueAt(getDescricao(), tableProduto.getSelectedRow(), 1);
+						tableModel.setValueAt(getQuantidade(), tableProduto.getSelectedRow(), 2);
+						tableModel.setValueAt(getPreco(), tableProduto.getSelectedRow(), 3);
 					}
 				} catch (Exception e) {
 					throw e;
@@ -291,14 +286,30 @@ public class ProdutoView extends JInternalFrame {
 		};
 	}
 
+	private String getDescricao() {
+		return txtDescricao.getText();
+	}
+
+	private String getQuantidade() {
+		return txtQuantidade.getText();
+	}
+
+	private String getPreco() {
+		return txtPreco.getText();
+	}
+
 	private MouseAdapter mouseClickedProduto() {
 		return new MouseAdapter() {
 			public void mouseClicked(MouseEvent mouseEvent) {
+				clearAllFields();
+				JOptionUtils.openFields(true, btnExcluir, btnEditar, btnCancelar);
+				JOptionUtils.openFields(false, btnNovo, btnSalvar);
 				ListSelectionModel selectionModel = tableProduto.getSelectionModel();
 				tableProduto.setSelectionModel(selectionModel);
-				JOptionUtils.setValueToFieldFromTable(tableProduto, ColumnTitle.DESCRICAO, txtNomeProduto);
-				JOptionUtils.setValueToFieldFromTable(tableProduto, ColumnTitle.QUANTIDADE, txtQuantidade);
-				JOptionUtils.setValueToFieldFromTable(tableProduto, ColumnTitle.PRECO, txtPreco);
+				produtoId = Long.valueOf(JOptionUtils.getValueFromColumn(tableProduto, ColumnTitle.ID));
+				txtDescricao.setText(JOptionUtils.getValueFromColumn(tableProduto, ColumnTitle.DESCRICAO));
+				txtQuantidade.setText(JOptionUtils.getValueFromColumn(tableProduto, ColumnTitle.QUANTIDADE));
+				txtPreco.setText(JOptionUtils.getValueFromColumn(tableProduto, ColumnTitle.PRECO));
 			}
 		};
 	}
@@ -307,26 +318,27 @@ public class ProdutoView extends JInternalFrame {
 		return actionEvent -> {
 			operacao = Operacao.NOVO.getOperacao();
 			JOptionUtils.openFields(false, btnEditar, btnExcluir, btnNovo, btnPesquisar);
-			JOptionUtils.openFields(true, txtNomeProduto, txtQuantidade, txtPreco, btnSalvar, btnCancelar, panelAcoesComplementares);
+			JOptionUtils.openFields(true, txtDescricao, txtQuantidade, txtPreco, btnSalvar, btnCancelar,
+					panelAcoesComplementares);
 			clearAllFields();
 		};
 	}
 
 	private void carregarDadosTabela() {
 		tableModel = (DefaultTableModel) tableProduto.getModel();
-		for (Produto produto : produtos) {
-			tableModel.addRow(new Object[]{
-					produto.getId(),
-					produto.getDescricao(),
-					produto.getQuantidade(),
-					produto.getValor()});
+		if (CollectionUtils.isNotEmpty(produtos)) {
+			for (Produto produto : produtos) {
+				tableModel.addRow(new Object[] { produto.getId(), produto.getDescricao(), produto.getQuantidade(),
+						produto.getValor() });
+			}
 		}
 	}
 
 	private void excluirDados() {
 		Long id = Long.valueOf(tableProduto.getValueAt(tableProduto.getSelectedRow(), 0).toString());
 		String nomeProduto = tableProduto.getValueAt(tableProduto.getSelectedRow(), 1).toString();
-		int opcaoEscolhida = JOptionUtils.yesOrNo(String.format("Desjea deletar o produto %s?", nomeProduto), Title.EXCLUIR);
+		int opcaoEscolhida = JOptionUtils.yesOrNo(String.format("Desjea deletar o produto %s?", nomeProduto),
+				Title.EXCLUIR);
 		if (JOptionUtils.isTrue(opcaoEscolhida)) {
 			ProdutoController produtoController = new ProdutoController();
 			produtoController.excluir(id);
@@ -337,8 +349,8 @@ public class ProdutoView extends JInternalFrame {
 	}
 
 	private void voltarTelaParaSituacaoParaInicial() {
-		openFields(false, btnEditar, btnExcluir, panelAcoesComplementares, btnSalvar, btnCancelar,
-				txtNomeProduto, txtQuantidade, txtPreco);
+		openFields(false, btnEditar, btnExcluir, panelAcoesComplementares, btnSalvar, btnCancelar, txtDescricao,
+				txtQuantidade, txtPreco);
 		openFields(true, btnNovo);
 		removerFiltroTabela();
 		clearAllFields();
@@ -352,7 +364,7 @@ public class ProdutoView extends JInternalFrame {
 	}
 
 	private void clearAllFields() {
-		clearFields(txtNomeProduto, txtQuantidade, txtPreco);
+		clearFields(txtDescricao, txtQuantidade, txtPreco);
 	}
 
 	public static void setProdutos(List<Produto> produtos) {

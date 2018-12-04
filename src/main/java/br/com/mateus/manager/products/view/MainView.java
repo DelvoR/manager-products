@@ -1,12 +1,19 @@
 package br.com.mateus.manager.products.view;
 
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.SystemColor;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JDesktopPane;
+import javax.swing.JFrame;
+import javax.swing.JMenuBar;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
 import br.com.mateus.manager.products.connection.ConnectionFactory;
 import br.com.mateus.manager.products.utils.JanelaUtils;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.awt.event.ActionListener;
 
 public class MainView extends JFrame {
 
@@ -38,7 +45,7 @@ public class MainView extends JFrame {
 	private void initComponents() {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 972, 692);
+		setBounds(100, 100, 1141, 692);
 		JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(null);
@@ -46,30 +53,27 @@ public class MainView extends JFrame {
 
 		desktop = new JDesktopPane();
 		desktop.setBackground(SystemColor.activeCaptionBorder);
-		desktop.setBounds(0, 65, 966, 598);
+		desktop.setBounds(0, 29, 1135, 634);
 		contentPane.add(desktop);
-
+		
 		JPanel panel = new JPanel();
-		panel.setBounds(0, 0, 966, 66);
+		panel.setBounds(0, 0, 1135, 29);
 		contentPane.add(panel);
 		panel.setLayout(null);
-
-		JButton btnPesquisarProdutos = new JButton("Pesquisar Produtos");
-		btnPesquisarProdutos.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		btnPesquisarProdutos.addActionListener(actionPerformedBtnPesquisarProdutos());
-		btnPesquisarProdutos.setBounds(327, 11, 213, 44);
-		panel.add(btnPesquisarProdutos);
-
+		
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.setBounds(0, 0, 1136, 30);
+		panel.add(menuBar);
+		
 		JButton btnLojas = new JButton("Lojas");
+		btnLojas.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnLojas.addActionListener(actionPerformedLojas());
-		btnLojas.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		btnLojas.setBounds(206, 11, 111, 44);
-		panel.add(btnLojas);
-
-		JButton btnUsurios = new JButton("Usu\u00E1rios");
-		btnUsurios.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		btnUsurios.setBounds(654, 11, 111, 44);
-		panel.add(btnUsurios);
+		menuBar.add(btnLojas);
+		
+		JButton btnPesquisarLojas = new JButton("Pesquisar Lojas");
+		btnPesquisarLojas.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnPesquisarLojas.addActionListener(actionPerformedBtnPesquisarProdutos());
+		menuBar.add(btnPesquisarLojas);
 	}
 
 	private ActionListener actionPerformedLojas() {
@@ -83,5 +87,4 @@ public class MainView extends JFrame {
 	private void initConnection() {
 		ConnectionFactory.getEntityManager();
 	}
-
 }
