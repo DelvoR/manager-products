@@ -14,8 +14,8 @@ public class Produto implements Serializable {
 	private String descricao;
 	private Double quantidade;
 	private Double valor;
-	@ManyToOne(cascade = CascadeType.MERGE)
-	@JoinColumn(name = "loja_id")
+
+	@ManyToOne
 	private Loja loja;
 
 	public Produto() {

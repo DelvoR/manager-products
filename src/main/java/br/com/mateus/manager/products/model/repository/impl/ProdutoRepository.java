@@ -1,9 +1,11 @@
 package br.com.mateus.manager.products.model.repository.impl;
 
+import br.com.mateus.manager.products.model.entity.Loja;
 import br.com.mateus.manager.products.model.entity.Produto;
 import br.com.mateus.manager.products.model.repository.AbstractRepository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.FlushModeType;
 import java.util.List;
 
 public class ProdutoRepository extends AbstractRepository<Produto> {
@@ -60,11 +62,11 @@ public class ProdutoRepository extends AbstractRepository<Produto> {
 		EntityManager entityManager = obterConexao();
 		try {
 			Produto produto = entityManager.find(Produto.class, id);
-			if (produto != null) {
-				entityManager.getTransaction().begin();
-				entityManager.remove(produto);
-				entityManager.getTransaction().commit();
-			}
+			entityManager.getTransaction().begin();
+			Loja loja = produto.getLoja();
+			entityManager.remove(produto);
+			loja.getProdutos().remove(produto);
+			entityManager.getTransaction().commit();
 		} catch (Exception e) {
 			entityManager.getTransaction().rollback();
 			throw e;

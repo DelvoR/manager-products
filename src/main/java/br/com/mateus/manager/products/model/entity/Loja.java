@@ -12,14 +12,17 @@ public class Loja implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "loja_sequence")
 	private Long id;
+
 	@Column(name = "razao_social")
 	private String razaoSocial;
+
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "endereco_id")
 	private Endereco endereco;
-	@OneToMany(mappedBy = "loja", targetEntity = Produto.class
-			, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+
+	@OneToMany(mappedBy = "loja", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private List<Produto> produtos;
+
 	private String cnpj;
 
 	public Loja() {

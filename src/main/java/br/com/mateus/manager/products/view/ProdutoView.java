@@ -251,7 +251,8 @@ public class ProdutoView extends JInternalFrame {
 	private ActionListener actionPerformedBtnSalvar() {
 		return actionEvent -> {
 			Produto produto = new Produto.Builder().descricao(txtDescricao.getText())
-					.quantidade(Double.parseDouble(getQuantidade())).valor(Double.parseDouble(getPreco())).loja(loja)
+					.quantidade(Double.parseDouble(getQuantidade())).valor(Double.parseDouble(getPreco()))
+					.loja(loja)
 					.build();
 
 			if (StringUtils.isNotBlank(produto.getDescricao())) {
