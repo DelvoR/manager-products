@@ -1,55 +1,37 @@
 package br.com.mateus.manager.products.view;
 
-import static br.com.mateus.manager.products.utils.JOptionUtils.clearFields;
-import static br.com.mateus.manager.products.utils.JOptionUtils.openFields;
-
-import java.awt.Color;
-import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.List;
-
-import javax.swing.JButton;
-import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.RowFilter;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import br.com.mateus.manager.products.controller.impl.ProdutoController;
+import br.com.mateus.manager.products.exceptions.*;
 import br.com.mateus.manager.products.model.entity.Loja;
 import br.com.mateus.manager.products.model.entity.Produto;
 import br.com.mateus.manager.products.model.enums.Operacao;
 import br.com.mateus.manager.products.utils.ColumnTitle;
 import br.com.mateus.manager.products.utils.JOptionUtils;
 import br.com.mateus.manager.products.utils.Title;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.util.List;
 
 public class ProdutoView extends JInternalFrame {
 
 	private static final long serialVersionUID = 2538628797157567245L;
-	private static final int NO_SELECTED_ROWS = -1;
-	private static final int NO_ROWS = 0;
+	private static Loja loja;
+	private static List<Produto> produtos;
 	private DefaultTableModel tableModel;
 	private Integer operacao;
 	private Long produtoId;
-	private static Loja loja;
-	private static List<Produto> produtos;
-
 	private JTable tableProduto;
 	private JButton btnSalvar;
 	private JButton btnCancelar;
@@ -58,12 +40,16 @@ public class ProdutoView extends JInternalFrame {
 	private JTextField txtDescricao;
 	private JTextField txtQuantidade;
 	private JTextField txtPreco;
-	private JMenuBar menuBar;
 	private JButton btnNovo;
 	private JButton btnEditar;
 	private JButton btnExcluir;
+	private ProdutoController produtoController = new ProdutoController();
 
 	private ProdutoView() {
+		try {
+			setFrameIcon(new ImageIcon(IOUtils.resourceToURL("/images/produto.png")));
+		} catch (IOException ignored) {
+		}
 		initComponents();
 		carregarDadosTabela();
 	}
@@ -79,14 +65,21 @@ public class ProdutoView extends JInternalFrame {
 		});
 	}
 
-	public static ProdutoView getInstance() {
+	static ProdutoView getInstance() {
 		return new ProdutoView();
+	}
+
+	static void setProdutos(List<Produto> produtos) {
+		ProdutoView.produtos = produtos;
+	}
+
+	static void setLoja(Loja loja) {
+		ProdutoView.loja = loja;
 	}
 
 	private void initComponents() {
 		setTitle("Produtos");
 		setIconifiable(true);
-		setMaximizable(true);
 		setClosable(true);
 		setBounds(100, 100, 744, 474);
 		getContentPane().setLayout(null);
@@ -103,8 +96,16 @@ public class ProdutoView extends JInternalFrame {
 		tableProduto = new JTable();
 		tableProduto.addMouseListener(mouseClickedProduto());
 
-		tableProduto.setModel(new DefaultTableModel(new Object[][] {},
-				new String[] { "C\u00F3digo", "Descri\u00E7\u00E3o", "Quantidade", "Pre\u00E7o" }));
+		tableProduto.setModel(new DefaultTableModel(new Object[][]{},
+				new String[]{"C\u00F3digo", "Descri\u00E7\u00E3o", "Quantidade", "Pre\u00E7o"}) {
+
+			private static final long serialVersionUID = -6353508273228958006L;
+			boolean[] columnEditables = new boolean[]{false, false, false, false, false, false};
+
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
+		});
 		scrollPaneProduto.setViewportView(tableProduto);
 
 		JPanel panelProduto = new JPanel();
@@ -175,7 +176,7 @@ public class ProdutoView extends JInternalFrame {
 		btnCancelar.setBounds(12, 65, 97, 33);
 		panelAcoesComplementares.add(btnCancelar);
 
-		menuBar = new JMenuBar();
+		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBounds(0, 0, 728, 21);
 		getContentPane().add(menuBar);
 
@@ -204,7 +205,7 @@ public class ProdutoView extends JInternalFrame {
 			String nomeProduto = txtDescricao.getText();
 			if (StringUtils.isNotBlank(nomeProduto)) {
 				rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + nomeProduto));
-				openFields(true, btnCancelar, panelAcoesComplementares);
+				JOptionUtils.openFields(true, btnCancelar, panelAcoesComplementares);
 			} else {
 				rowSorter.setRowFilter(null);
 			}
@@ -215,18 +216,16 @@ public class ProdutoView extends JInternalFrame {
 		return actionEvent -> {
 			operacao = Operacao.EXCLUIR.getOperacao();
 
-			if (tableProduto.getSelectedRow() == NO_SELECTED_ROWS) {
-				if (tableProduto.getRowCount() == NO_ROWS) {
-					JOptionUtils.mostrarMensagem("A tablea est\u00e1 vazia!");
-				} else {
-					JOptionUtils.mostrarMensagem("Deve ser selecionado um produto!");
-				}
-			} else {
+			try {
+				JOptionUtils.linhaSelecionada(tableProduto);
 				JOptionUtils.openFields(false, btnNovo, btnSalvar);
 				JOptionUtils.openFields(true, panelAcoesComplementares, btnCancelar);
 				excluirDados();
-				voltarTelaParaSituacaoParaInicial();
+
+			} catch (TabelaVaziaException | LinhaNaoSelecionadaException e) {
+				JOptionUtils.mostrarAlerta(e.getMessage(), Title.ALERTA);
 			}
+			voltarTelaParaSituacaoParaInicial();
 		};
 	}
 
@@ -234,16 +233,13 @@ public class ProdutoView extends JInternalFrame {
 		return actionEvent -> {
 			operacao = Operacao.EDITAR.getOperacao();
 
-			if (tableProduto.getSelectedRow() == NO_SELECTED_ROWS) {
-				if (tableProduto.getRowCount() == NO_ROWS) {
-					JOptionUtils.mostrarMensagem("A tabela est\u00e1 vaiza!");
-				} else {
-					JOptionUtils.mostrarMensagem("Deve ser selecionado um produto!");
-				}
-			} else {
+			try {
+				JOptionUtils.linhaSelecionada(tableProduto);
 				JOptionUtils.openFields(false, btnExcluir, btnNovo, btnPesquisar);
 				JOptionUtils.openFields(true, panelAcoesComplementares, btnSalvar, txtDescricao, txtQuantidade,
 						txtPreco, btnCancelar);
+			} catch (TabelaVaziaException | LinhaNaoSelecionadaException e) {
+				JOptionUtils.mostrarAlerta(e.getMessage(), Title.ALERTA);
 			}
 		};
 	}
@@ -259,16 +255,13 @@ public class ProdutoView extends JInternalFrame {
 					.build();
 
 			if (StringUtils.isNotBlank(produto.getDescricao())) {
-				ProdutoController produtoController = new ProdutoController();
 				try {
 					if (operacao.equals(Operacao.NOVO.getOperacao())) {
-						boolean resultado = produtoController.cadastrar(produto);
-						if (resultado) {
-							tableModel.addRow(new Object[] { produto.getId(), produto.getDescricao(),
-									produto.getQuantidade(), produto.getValor() });
-							JOptionUtils.mostrarInformacao(
-									"Produto " + produto.getDescricao() + " cadastrado com sucesso!", Title.INFORMACAO);
-						}
+						produtoController.cadastrar(produto);
+						tableModel.addRow(new Object[]{produto.getId(), produto.getDescricao(),
+								produto.getQuantidade(), produto.getValor()});
+						JOptionUtils.mostrarSucesso("Produto " + produto.getDescricao() + " cadastrado com sucesso!",
+								Title.SUCESSO);
 					} else if (operacao.equals(Operacao.EDITAR.getOperacao())) {
 						produto.setId(produtoId);
 						produtoController.atualizar(produto);
@@ -276,11 +269,11 @@ public class ProdutoView extends JInternalFrame {
 						tableModel.setValueAt(getQuantidade(), tableProduto.getSelectedRow(), 2);
 						tableModel.setValueAt(getPreco(), tableProduto.getSelectedRow(), 3);
 					}
-				} catch (Exception e) {
-					throw e;
+				} catch (AtualizarException | CadastrarException e) {
+					JOptionUtils.mostrarErro(e.getMessage() + "\nMotivo:" + e.getCause(), Title.ERRO);
 				}
 			} else {
-				JOptionUtils.mostrarMensagem("Descicao obrigatoria");
+				JOptionUtils.mostrarAlerta("Descicao obrigatoria", Title.ALERTA);
 			}
 			voltarTelaParaSituacaoParaInicial();
 		};
@@ -328,8 +321,8 @@ public class ProdutoView extends JInternalFrame {
 		tableModel = (DefaultTableModel) tableProduto.getModel();
 		if (CollectionUtils.isNotEmpty(produtos)) {
 			for (Produto produto : produtos) {
-				tableModel.addRow(new Object[] { produto.getId(), produto.getDescricao(), produto.getQuantidade(),
-						produto.getValor() });
+				tableModel.addRow(new Object[]{produto.getId(), produto.getDescricao(), produto.getQuantidade(),
+						produto.getValor()});
 			}
 		}
 	}
@@ -339,19 +332,22 @@ public class ProdutoView extends JInternalFrame {
 		String nomeProduto = tableProduto.getValueAt(tableProduto.getSelectedRow(), 1).toString();
 		int opcaoEscolhida = JOptionUtils.yesOrNo(String.format("Desjea deletar o produto %s?", nomeProduto),
 				Title.EXCLUIR);
-		if (JOptionUtils.isTrue(opcaoEscolhida)) {
-			ProdutoController produtoController = new ProdutoController();
-			produtoController.excluir(id);
 
-			tableModel.removeRow(tableProduto.getSelectedRow());
-			JOptionUtils.mostrarInformacao(String.format("O produto (id: %d) foi removido!", id), Title.INFORMACAO);
+		if (JOptionUtils.isTrue(opcaoEscolhida)) {
+			try {
+				produtoController.excluir(id);
+				tableModel.removeRow(tableProduto.getSelectedRow());
+				JOptionUtils.mostrarSucesso(String.format("O produto (id: %d) foi removido!", id), Title.SUCESSO);
+			} catch (ExcluirException e) {
+				JOptionUtils.mostrarErro(e.getMessage() + "\nMotivo:" + e.getCause(), Title.ERRO);
+			}
 		}
 	}
 
 	private void voltarTelaParaSituacaoParaInicial() {
-		openFields(false, btnEditar, btnExcluir, panelAcoesComplementares, btnSalvar, btnCancelar, txtDescricao,
-				txtQuantidade, txtPreco);
-		openFields(true, btnNovo);
+		JOptionUtils.openFields(false, btnEditar, btnExcluir, panelAcoesComplementares, btnSalvar, btnCancelar,
+				txtDescricao, txtQuantidade, txtPreco);
+		JOptionUtils.openFields(true, btnNovo);
 		removerFiltroTabela();
 		clearAllFields();
 	}
@@ -364,14 +360,6 @@ public class ProdutoView extends JInternalFrame {
 	}
 
 	private void clearAllFields() {
-		clearFields(txtDescricao, txtQuantidade, txtPreco);
-	}
-
-	public static void setProdutos(List<Produto> produtos) {
-		ProdutoView.produtos = produtos;
-	}
-
-	public static void setLoja(Loja loja) {
-		ProdutoView.loja = loja;
+		JOptionUtils.clearFields(txtDescricao, txtQuantidade, txtPreco);
 	}
 }

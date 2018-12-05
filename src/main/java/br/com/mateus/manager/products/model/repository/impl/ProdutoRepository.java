@@ -1,59 +1,75 @@
 package br.com.mateus.manager.products.model.repository.impl;
 
-import java.util.List;
-
-import javax.persistence.EntityManager;
-
 import br.com.mateus.manager.products.model.entity.Produto;
 import br.com.mateus.manager.products.model.repository.AbstractRepository;
 
+import javax.persistence.EntityManager;
+import java.util.List;
+
 public class ProdutoRepository extends AbstractRepository<Produto> {
 
-	private EntityManager entityManager;
 
-	public ProdutoRepository() {
-		entityManager = obterConexao();
-	}
-
-	public boolean save(Produto produto) {
+	@SuppressWarnings("Duplicates")
+	@Override
+	public void save(Produto produto) {
+		EntityManager entityManager = obterConexao();
 		try {
 			entityManager.getTransaction().begin();
-			if (produto.getId() == null) {
-				entityManager.persist(produto);
-			} else {
-				entityManager.merge(produto);
-			}
+			entityManager.persist(produto);
 			entityManager.getTransaction().commit();
-			return true;
 		} catch (Exception e) {
 			entityManager.getTransaction().rollback();
-			System.err.println(e);
-			return false;
+			throw e;
+		} finally {
+			entityManager.close();
+		}
+	}
+
+	@SuppressWarnings("Duplicates")
+	@Override
+	public void update(Produto produto) {
+		EntityManager entityManager = obterConexao();
+		try {
+			entityManager.getTransaction().begin();
+			entityManager.merge(produto);
+			entityManager.getTransaction().commit();
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+			throw e;
+		} finally {
+			entityManager.close();
 		}
 	}
 
 	public Produto findById(Long id) {
-		return entityManager.find(Produto.class, id);
+		EntityManager entityManager = obterConexao();
+		Produto produto = entityManager.find(Produto.class, id);
+		entityManager.close();
+		return produto;
 	}
 
 	@SuppressWarnings("unchecked")
 	public List<Produto> findAll() {
-		return entityManager.createQuery("FROM Produto p").getResultList();
+		EntityManager entityManager = obterConexao();
+		List<Produto> produtos = entityManager.createQuery("SELECT p FROM " + Produto.class.getSimpleName() + " p").getResultList();
+		entityManager.close();
+		return produtos;
 	}
 
-	public boolean remove(Long id) {
+	public void remove(Long id) {
+		EntityManager entityManager = obterConexao();
 		try {
-			Produto produto = findById(id);
+			Produto produto = entityManager.find(Produto.class, id);
 			if (produto != null) {
 				entityManager.getTransaction().begin();
 				entityManager.remove(produto);
 				entityManager.getTransaction().commit();
 			}
-			return true;
 		} catch (Exception e) {
-			System.err.println(e);
 			entityManager.getTransaction().rollback();
-			return false;
+			throw e;
+		} finally {
+			entityManager.close();
 		}
 	}
 }

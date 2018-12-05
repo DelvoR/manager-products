@@ -6,10 +6,11 @@ import javax.persistence.Persistence;
 
 public class ConnectionFactory {
 
-    private static EntityManagerFactory factory =
-            Persistence.createEntityManagerFactory("persistence-default");
+	private static EntityManagerFactory factory =
+			Persistence.createEntityManagerFactory("persistence-default");
 
-    public static EntityManager getEntityManager() {
-        return factory.createEntityManager();
-    }
+	public static EntityManager getEntityManager() {
+		return factory.createEntityManager();
+	}
+
 }

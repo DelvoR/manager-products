@@ -1,29 +1,24 @@
 package br.com.mateus.manager.products.view;
 
-import java.awt.EventQueue;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JButton;
-import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.RowFilter;
-import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
-
-import org.apache.commons.collections4.CollectionUtils;
-
 import br.com.mateus.manager.products.controller.impl.ProdutoController;
+import br.com.mateus.manager.products.exceptions.BuscarException;
 import br.com.mateus.manager.products.model.entity.Endereco;
 import br.com.mateus.manager.products.model.entity.Loja;
 import br.com.mateus.manager.products.model.entity.Produto;
+import br.com.mateus.manager.products.utils.JOptionUtils;
+import br.com.mateus.manager.products.utils.Title;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.IOUtils;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PesquisaProdutoView extends JInternalFrame {
 
@@ -33,6 +28,18 @@ public class PesquisaProdutoView extends JInternalFrame {
 	private JTextField txtCidade;
 	private DefaultTableModel tableModel;
 	private JTextField txtBairro;
+
+	private PesquisaProdutoView() {
+		try {
+			setFrameIcon(new ImageIcon(IOUtils.resourceToURL("/images/pesquisa.png")));
+		} catch (IOException ignored) {
+		}
+		setIconifiable(true);
+		setTitle("Pesquisa Avan\u00E7ada");
+		initComponents();
+		carregarDadosTabela();
+
+	}
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(() -> {
@@ -45,12 +52,6 @@ public class PesquisaProdutoView extends JInternalFrame {
 		});
 	}
 
-	private PesquisaProdutoView() {
-		initComponents();
-		carregarDadosTabela();
-
-	}
-
 	static PesquisaProdutoView getInstance() {
 		if (instance == null) {
 			instance = new PesquisaProdutoView();
@@ -59,6 +60,7 @@ public class PesquisaProdutoView extends JInternalFrame {
 	}
 
 	private void initComponents() {
+
 		setClosable(true);
 		setBounds(100, 100, 878, 492);
 		getContentPane().setLayout(null);
@@ -78,10 +80,10 @@ public class PesquisaProdutoView extends JInternalFrame {
 		panelTableProduto.add(scrollPaneProduto);
 
 		tableProdutos = new JTable();
-		tableProdutos.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "Raz\u00E3o Social", "Bairro",
-				"Rua", "Cidade", "UF", "Descri\u00E7\u00E3o", "Quantidade", "Pre\u00E7o" }) {
+		tableProdutos.setModel(new DefaultTableModel(new Object[][]{}, new String[]{"Raz\u00E3o Social", "Bairro",
+				"Rua", "Cidade", "UF", "Descri\u00E7\u00E3o", "Quantidade", "Pre\u00E7o"}) {
 			private static final long serialVersionUID = -6932124133860570521L;
-			boolean[] columnEditables = new boolean[] { false, false, false, false, false, false };
+			boolean[] columnEditables = new boolean[]{false, false, false, false, false, false};
 
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
@@ -97,27 +99,27 @@ public class PesquisaProdutoView extends JInternalFrame {
 
 		JLabel lblCidade = new JLabel("Cidade:");
 		lblCidade.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblCidade.setBounds(99, 11, 60, 23);
+		lblCidade.setBounds(106, 11, 60, 23);
 		panelPesquisa.add(lblCidade);
 
 		txtCidade = new JTextField();
-		txtCidade.setBounds(163, 11, 171, 23);
+		txtCidade.setBounds(170, 11, 171, 23);
 		txtCidade.setColumns(10);
 		panelPesquisa.add(txtCidade);
 
 		JButton btnPesquisar = new JButton("Pesquisar");
 		btnPesquisar.addActionListener(actionPerformedBtnPesquisar());
-		btnPesquisar.setBounds(618, 11, 119, 23);
+		btnPesquisar.setBounds(625, 11, 119, 23);
 		panelPesquisa.add(btnPesquisar);
 
 		txtBairro = new JTextField();
 		txtBairro.setColumns(10);
-		txtBairro.setBounds(408, 11, 171, 23);
+		txtBairro.setBounds(415, 11, 171, 23);
 		panelPesquisa.add(txtBairro);
 
 		JLabel lblBairro = new JLabel("Bairro:");
 		lblBairro.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblBairro.setBounds(344, 11, 60, 23);
+		lblBairro.setBounds(351, 11, 60, 23);
 		panelPesquisa.add(lblBairro);
 	}
 
@@ -135,27 +137,31 @@ public class PesquisaProdutoView extends JInternalFrame {
 		};
 	}
 
+	private void carregarDadosTabela() {
+		ProdutoController produtoController = new ProdutoController();
+		try {
+			List<Produto> produtos = produtoController.buscarTodos();
+			tableModel = (DefaultTableModel) tableProdutos.getModel();
+
+			if (CollectionUtils.isNotEmpty(produtos)) {
+				for (Produto produto : produtos) {
+					Loja loja = produto.getLoja();
+					Endereco endereco = loja.getEndereco();
+					tableModel.addRow(new Object[]{loja.getRazaoSocial(), endereco.getBairro(), endereco.getRua(),
+							endereco.getCidade(), endereco.getUf(), produto.getDescricao(),
+							produto.getQuantidade(), produto.getValor()});
+				}
+			}
+		} catch (BuscarException e) {
+			JOptionUtils.mostrarErro(e.getMessage() + "\nMotivo:" + e.getCause(), Title.ERRO);
+		}
+	}
+
 	private String getBairro() {
 		return txtBairro.getText();
 	}
 
 	private String getCidade() {
 		return txtCidade.getText();
-	}
-
-	private void carregarDadosTabela() {
-		ProdutoController produtoController = new ProdutoController();
-		List<Produto> produtos = produtoController.buscarTodos();
-		tableModel = (DefaultTableModel) tableProdutos.getModel();
-
-		if (CollectionUtils.isNotEmpty(produtos)) {
-			for (Produto produto : produtos) {
-				Loja loja = produto.getLoja();
-				Endereco endereco = loja.getEndereco();
-				tableModel.addRow(new Object[] { loja.getRazaoSocial(), endereco.getBairro(), endereco.getRua(),
-						endereco.getCidade(), endereco.getUf(), produto.getDescricao(),
-						produto.getQuantidade(), produto.getValor() });
-			}
-		}
 	}
 }

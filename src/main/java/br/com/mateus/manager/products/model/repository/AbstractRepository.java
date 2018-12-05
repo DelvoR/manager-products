@@ -7,15 +7,17 @@ import java.util.List;
 
 public abstract class AbstractRepository<Entity> {
 
-    protected static EntityManager obterConexao() {
-        return ConnectionFactory.getEntityManager();
-    }
+	protected static EntityManager obterConexao() {
+		return ConnectionFactory.getEntityManager();
+	}
 
-    public abstract boolean save(Entity entity);
+	public abstract void save(Entity entity) throws Exception;
 
-    public abstract Entity findById(Long id);
+	public abstract void update(Entity entity);
 
-    public abstract List<Entity> findAll();
+	public abstract Entity findById(Long id);
 
-    public abstract boolean remove(Long id);
+	public abstract List<Entity> findAll();
+
+	public abstract void remove(Long id);
 }

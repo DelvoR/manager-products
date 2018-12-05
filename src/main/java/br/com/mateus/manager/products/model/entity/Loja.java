@@ -7,10 +7,8 @@ import java.util.List;
 @Entity
 public class Loja implements Serializable {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = -4879101698489057083L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "loja_sequence")
 	private Long id;
@@ -20,7 +18,7 @@ public class Loja implements Serializable {
 	@JoinColumn(name = "endereco_id")
 	private Endereco endereco;
 	@OneToMany(mappedBy = "loja", targetEntity = Produto.class
-			, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+			, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private List<Produto> produtos;
 	private String cnpj;
 
@@ -73,4 +71,5 @@ public class Loja implements Serializable {
 	public void setCnpj(String cnpj) {
 		this.cnpj = cnpj;
 	}
+
 }

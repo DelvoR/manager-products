@@ -1,50 +1,7 @@
 package br.com.mateus.manager.products.view;
 
-import static br.com.mateus.manager.products.utils.JOptionUtils.clearFields;
-import static br.com.mateus.manager.products.utils.JOptionUtils.getValueFromColumn;
-import static br.com.mateus.manager.products.utils.JOptionUtils.isTrue;
-import static br.com.mateus.manager.products.utils.JOptionUtils.mostrarInformacao;
-import static br.com.mateus.manager.products.utils.JOptionUtils.mostrarMensagem;
-import static br.com.mateus.manager.products.utils.JOptionUtils.openFields;
-import static br.com.mateus.manager.products.utils.JOptionUtils.setValueToFieldFromTable;
-import static br.com.mateus.manager.products.utils.JOptionUtils.yesOrNo;
-
-import java.awt.Color;
-import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFormattedTextField;
-import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.RowFilter;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
-import javax.swing.text.MaskFormatter;
-
-import org.apache.commons.lang3.StringUtils;
-
 import br.com.mateus.manager.products.controller.impl.LojaController;
+import br.com.mateus.manager.products.exceptions.*;
 import br.com.mateus.manager.products.model.entity.Endereco;
 import br.com.mateus.manager.products.model.entity.Loja;
 import br.com.mateus.manager.products.model.enums.Estado;
@@ -53,12 +10,31 @@ import br.com.mateus.manager.products.utils.ColumnTitle;
 import br.com.mateus.manager.products.utils.JOptionUtils;
 import br.com.mateus.manager.products.utils.JanelaUtils;
 import br.com.mateus.manager.products.utils.Title;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+import javax.swing.text.MaskFormatter;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static br.com.mateus.manager.products.utils.JOptionUtils.*;
 
 public class LojaView extends JInternalFrame {
 
 	private static final long serialVersionUID = 5797416484063659840L;
-	private static final int NO_ROWS = 0;
-	private static final int NO_SELECTED_ROWS = -1;
+	private static final LojaController lojaController = new LojaController();
 	private static LojaView instance;
 	private JanelaUtils janelaUtils;
 	private Long idLoja;
@@ -79,22 +55,23 @@ public class LojaView extends JInternalFrame {
 	private JPanel panelAcoesComplementares;
 	private JButton btnCancelar;
 	private JButton btnSalvar;
-	private JMenuBar menuBar;
 	private JButton btnNovo;
 	private JButton btnEditar;
 	private JButton btnExcluir;
 	private JButton btnProdutos;
 
-	private static final LojaController lojaController = new LojaController();
-
 	private LojaView() {
+		try {
+			setFrameIcon(new ImageIcon(IOUtils.resourceToURL("/images/lojas.png")));
+		} catch (IOException ignored) {
+		}
 		initComponets();
 		janelaUtils = new JanelaUtils(MainView.getDesktop());
 		carregarDadosTabela();
 
 	}
 
-	public static LojaView getInstance() {
+	static LojaView getInstance() {
 		if (instance == null) {
 			instance = new LojaView();
 		}
@@ -112,10 +89,9 @@ public class LojaView extends JInternalFrame {
 		});
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	private void initComponets() {
 		setTitle("Lojas");
-		setMaximizable(true);
 		setIconifiable(true);
 		setClosable(true);
 		setBounds(100, 100, 744, 474);
@@ -141,14 +117,15 @@ public class LojaView extends JInternalFrame {
 				txtCnpj = new JFormattedTextField(new MaskFormatter("##.###.###/####-##"));
 				break;
 			} catch (ParseException e) {
-				JOptionPane.showMessageDialog(null, "CNPJ Inv\u00e1lido","Erro", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "CNPJ Inv\u00e1lido", "Erro", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 
 		txtCnpj.setEditable(false);
 		txtCnpj.setEnabled(false);
+		txtCnpj.setVisible(true);
 		txtCnpj.setColumns(10);
-		txtCnpj.setBounds(395, 89, 179, 20);
+		txtCnpj.setBounds(396, 41, 179, 20);
 		getContentPane().add(txtCnpj);
 
 		JPanel panelEndereco = new JPanel();
@@ -258,8 +235,15 @@ public class LojaView extends JInternalFrame {
 
 		tableLoja = new JTable();
 		tableLoja.addMouseListener(mouseClickedTableLoja());
-		tableLoja.setModel(new DefaultTableModel(new Object[][] {},
-				new String[] { "C\u00f3digo", "CNPJ", "Raz\u00E3o Social", "Cidade", "Bairro" }));
+		tableLoja.setModel(new DefaultTableModel(new Object[][]{},
+				new String[]{"C\u00f3digo", "CNPJ", "Raz\u00E3o Social", "Cidade", "Bairro"}) {
+			private static final long serialVersionUID = -9044059445331486703L;
+			boolean[] columnEditables = new boolean[]{false, false, false, false, false, false};
+
+			public boolean isCellEditable(int row, int column) {
+				return columnEditables[column];
+			}
+		});
 
 		scrollPaneLoja.setViewportView(tableLoja);
 
@@ -290,41 +274,46 @@ public class LojaView extends JInternalFrame {
 		btnPesquisar.addActionListener(actionPerformedBtnPesquisar());
 		btnPesquisar.setBounds(599, 41, 119, 20);
 		getContentPane().add(btnPesquisar);
-		
-		menuBar = new JMenuBar();
+
+		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBounds(0, 0, 728, 30);
 		getContentPane().add(menuBar);
-		
+
 		btnNovo = new JButton("Novo");
 		btnNovo.addActionListener(actionPerformedBtnNovo());
 		btnNovo.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		menuBar.add(btnNovo);
-		
+
 		btnEditar = new JButton("Editar");
 		btnEditar.addActionListener(actionPerformedBtnEditar());
 		btnEditar.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		menuBar.add(btnEditar);
-		
+
 		btnExcluir = new JButton("Excluir");
 		btnExcluir.addActionListener(actionPerfomedBtnExcluir());
 		btnExcluir.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		menuBar.add(btnExcluir);
-		
+
 		btnProdutos = new JButton("Produtos");
 		btnProdutos.addActionListener(actionPerformedBtnProdutos());
 		btnProdutos.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		menuBar.add(btnProdutos);
+
 	}
 
 	private ActionListener actionPerformedBtnProdutos() {
 		return actionEvent -> {
 			if (idLoja != null) {
-				Loja loja = lojaController.buscar(idLoja);
-				ProdutoView.setLoja(loja);
-				ProdutoView.setProdutos(loja.getProdutos());
-				janelaUtils.abrirInternalFrame(ProdutoView.getInstance());
+				try {
+					Loja loja = lojaController.buscar(idLoja);
+					ProdutoView.setLoja(loja);
+					ProdutoView.setProdutos(loja.getProdutos());
+					janelaUtils.abrirInternalFrame(ProdutoView.getInstance());
+				} catch (BuscarException e) {
+					JOptionUtils.mostrarErro(e.getMessage() + "\nMotivo:" + e.getCause(), Title.ERRO);
+				}
 			} else {
-				JOptionUtils.mostrarMensagem("Nenhuma loja selecionada!");
+				JOptionUtils.mostrarAlerta("Nenhuma loja selecionada!", Title.ALERTA);
 			}
 		};
 	}
@@ -355,22 +344,26 @@ public class LojaView extends JInternalFrame {
 				ListSelectionModel selectionModel = tableLoja.getSelectionModel();
 				tableLoja.setSelectionModel(selectionModel);
 
-				setValueToFieldFromTable(tableLoja, ColumnTitle.CNPJ, txtCnpj);
-				setValueToFieldFromTable(tableLoja, ColumnTitle.RAZAO_SOCIAL, txtRazaoSocial);
-				setValueToFieldFromTable(tableLoja, ColumnTitle.CIDADE, txtCidade);
-				setValueToFieldFromTable(tableLoja, ColumnTitle.BAIRRO, txtBairro);
+				txtCnpj.setText(JOptionUtils.getValueFromColumn(tableLoja, ColumnTitle.CNPJ));
+				txtRazaoSocial.setText(JOptionUtils.getValueFromColumn(tableLoja, ColumnTitle.RAZAO_SOCIAL));
+				txtCidade.setText(JOptionUtils.getValueFromColumn(tableLoja, ColumnTitle.CIDADE));
+				txtBairro.setText(JOptionUtils.getValueFromColumn(tableLoja, ColumnTitle.BAIRRO));
 
-				idLoja = Long.valueOf(getValueFromColumn(tableLoja, ColumnTitle.ID));
-				Loja loja = lojaController.buscar(idLoja);
-				Endereco endereco = loja.getEndereco();
-				idEndereco = endereco.getId();
-				txtRua.setText(endereco.getRua());
-				txtNumero.setText(endereco.getNumero().toString());
-				comboBoxUf.setSelectedItem(endereco.getUf().getSigla());
-				txtBairro.setText(endereco.getBairro());
-				txtCep.setText(endereco.getCep());
-				txtCidade.setText(endereco.getCidade());
-				txtComplemento.setText(endereco.getComplemento());
+				try {
+					idLoja = Long.valueOf(getValueFromColumn(tableLoja, ColumnTitle.ID));
+					Loja loja = lojaController.buscar(idLoja);
+					Endereco endereco = loja.getEndereco();
+					idEndereco = endereco.getId();
+					txtRua.setText(endereco.getRua());
+					txtNumero.setText(endereco.getNumero().toString());
+					comboBoxUf.setSelectedItem(endereco.getUf().getSigla());
+					txtBairro.setText(endereco.getBairro());
+					txtCep.setText(endereco.getCep());
+					txtCidade.setText(endereco.getCidade());
+					txtComplemento.setText(endereco.getComplemento());
+				} catch (BuscarException e) {
+					JOptionUtils.mostrarErro(e.getMessage() + "\nMotivo:" + e.getCause(), Title.ERRO);
+				}
 			}
 		};
 	}
@@ -379,17 +372,13 @@ public class LojaView extends JInternalFrame {
 		return actionEvent -> {
 			operacao = Operacao.EDITAR.getOperacao();
 
-			if (tableLoja.getSelectedRow() == NO_SELECTED_ROWS) {
-				if (tableLoja.getRowCount() == NO_ROWS) {
-					mostrarMensagem("A tabela esta vazia!");
-				} else {
-					mostrarMensagem("Deve ser selecionado uma loja!");
-				}
-			} else {
+			try {
+				JOptionUtils.linhaSelecionada(tableLoja);
 				openFields(false, btnExcluir, btnNovo);
 				openFields(true, panelAcoesComplementares, btnSalvar, txtRazaoSocial, txtCnpj, txtRua, txtNumero,
 						comboBoxUf, txtBairro, txtCep, txtCidade, txtComplemento, btnCancelar);
-
+			} catch (TabelaVaziaException | LinhaNaoSelecionadaException e) {
+				JOptionUtils.mostrarAlerta(e.getMessage(), Title.ALERTA);
 			}
 		};
 	}
@@ -398,53 +387,38 @@ public class LojaView extends JInternalFrame {
 		return actionEvent -> {
 			operacao = Operacao.EXCLUIR.getOperacao();
 
-			if (tableLoja.getSelectedRow() == NO_SELECTED_ROWS) {
-				if (tableLoja.getRowCount() == NO_ROWS) {
-					mostrarMensagem("A tabela esta vazia!");
-				} else {
-					mostrarMensagem("Deve ser selecionado uma loja!");
-				}
-			} else {
+			try {
+				JOptionUtils.linhaSelecionada(tableLoja);
 				openFields(false, btnNovo, btnSalvar);
 				openFields(true, panelAcoesComplementares, btnCancelar);
 
 				excluirDados();
 				voltarTelaParaSituacaoParaInicial();
-
+			} catch (TabelaVaziaException | LinhaNaoSelecionadaException e) {
+				JOptionUtils.mostrarAlerta(e.getMessage(), Title.ALERTA);
 			}
 		};
 	}
 
 	private ActionListener actionPerformedBtnSalvar() {
 		return actionEvent -> {
-			String cnpjSemMascara = getCnpj()
-					.replaceAll("\\.", "")
-					.replaceAll("/", "")
-					.replaceAll("-", "");
+			String cnpjSemMascara = getCnpj().replaceAll("\\.", "").replaceAll("/", "").replaceAll("-", "");
 
-			Endereco endereco = new Endereco.Builder()
-					.rua(getRua())
-					.numero(getNumero())
-					.uf(getUf())
-					.bairro(getBairro())
-					.cep(getCep())
-					.cidade(getCidade())
-					.complemento(getComplemento())
-					.build();
-			if (StringUtils.isNotBlank(getRazaoSocial()) && StringUtils.isNotBlank(cnpjSemMascara)) {
+			Endereco endereco = new Endereco.Builder().rua(getRua()).numero(getNumero()).uf(getUf()).bairro(getBairro())
+					.cep(getCep()).cidade(getCidade()).complemento(getComplemento()).build();
+			if (podeAlterarLoja(cnpjSemMascara)) {
 				Loja loja = new Loja(getRazaoSocial(), endereco, cnpjSemMascara);
 				try {
 					if (operacao.equals(Operacao.NOVO.getOperacao())) {
-						boolean resultado = lojaController.cadastrar(loja);
-						if (resultado) {
-							tableModel.addRow(new Object[] { loja.getId(), getCnpj(), getRazaoSocial(), getCidade(), getBairro() });
-							int opcao = JOptionUtils.yesOrNo(
-									"Loja cadastrada com sucesso! \nDeseja cadastrar os Produtos dessa Loja?",
-									Title.SUCESSO);
-							if (isTrue(opcao)) {
-								ProdutoView.setLoja(loja);
-								janelaUtils.abrirInternalFrame(ProdutoView.getInstance());
-							}
+						lojaController.cadastrar(loja);
+						tableModel.addRow(
+								new Object[]{loja.getId(), getCnpj(), getRazaoSocial(), getCidade(), getBairro()});
+						int opcao = JOptionUtils.yesOrNo(
+								"Loja cadastrada com sucesso! \nDeseja cadastrar produtos para essa loja?",
+								Title.SUCESSO);
+						if (isTrue(opcao)) {
+							ProdutoView.setLoja(loja);
+							janelaUtils.abrirInternalFrame(ProdutoView.getInstance());
 						}
 					} else if (operacao.equals(Operacao.EDITAR.getOperacao())) {
 						loja.setId(idLoja);
@@ -455,16 +429,97 @@ public class LojaView extends JInternalFrame {
 						tableModel.setValueAt(getCidade(), tableLoja.getSelectedRow(), 3);
 						tableModel.setValueAt(getBairro(), tableLoja.getSelectedRow(), 4);
 					}
-				} catch (Exception e) {
-					throw e;
+				} catch (AtualizarException | CadastrarException e) {
+					JOptionUtils.mostrarErro(e.getMessage() + "\nMotivo:" + e.getCause(), Title.ERRO);
 				}
 			} else {
-				JOptionPane.showMessageDialog(null,
-						"\u00c9 obrigat\u00f3rio informar Raz\u00e3o Social e CNPJ para cadastrar uma loja!", "Sucesso",
-						JOptionPane.WARNING_MESSAGE);
+				JOptionUtils.mostrarAlerta(
+						"\u00c9 obrigat\u00f3rio informar Raz\u00e3o Social e CNPJ para cadastrar uma loja!",
+						Title.ALERTA);
 			}
 			voltarTelaParaSituacaoParaInicial();
 		};
+	}
+
+	private ActionListener actionPerformedBtnNovo() {
+		return actionEvent -> {
+			clearAllFields();
+			operacao = Operacao.NOVO.getOperacao();
+			openFields(false, btnEditar, btnExcluir, btnNovo, btnPesquisar);
+			openFields(true, txtRazaoSocial, txtCnpj, txtRua, txtNumero, comboBoxUf, txtBairro, txtCep, txtCidade,
+					txtComplemento, btnCancelar, btnSalvar, panelAcoesComplementares);
+		};
+	}
+
+	private ActionListener actionPerformedBtnCancelar() {
+		return actionEvent -> voltarTelaParaSituacaoParaInicial();
+	}
+
+	private void carregarDadosTabela() {
+		try {
+			List<Loja> lojas = lojaController.buscarTodos();
+			tableLoja.getColumnModel().getColumn(0).setPreferredWidth(5);
+			tableModel = (DefaultTableModel) tableLoja.getModel();
+			JFormattedTextField cnpj = null;
+			try {
+				cnpj = new JFormattedTextField(new MaskFormatter("##.###.###/####-##"));
+			} catch (ParseException ignored) {
+			}
+			for (Loja loja : lojas) {
+				if (cnpj != null) {
+					cnpj.setText(loja.getCnpj());
+				}
+				tableModel.addRow(new Object[]{loja.getId(), cnpj != null ? cnpj.getText() : StringUtils.EMPTY,
+						loja.getRazaoSocial(), loja.getEndereco().getCidade(), loja.getEndereco().getBairro()});
+			}
+		} catch (BuscarException e) {
+			JOptionUtils.mostrarInformacao("Não há lojas cadastradas", Title.INFORMACAO);
+		}
+
+	}
+
+	private void excluirDados() {
+		Long id = Long.valueOf(tableLoja.getValueAt(tableLoja.getSelectedRow(), 0).toString());
+		String razaoSocial = tableLoja.getValueAt(tableLoja.getSelectedRow(), 1).toString();
+		int opcaoEscolhida = yesOrNo(String.format("Deseja deletar a loja %s?", razaoSocial), Title.EXCLUIR);
+
+		if (isTrue(opcaoEscolhida)) {
+			try {
+				lojaController.excluir(id);
+				tableModel.removeRow(tableLoja.getSelectedRow());
+				mostrarSucesso(String.format("A loja (id : %d) foi removida!", id), Title.SUCESSO);
+			} catch (ExcluirException e) {
+				JOptionUtils.mostrarErro(e.getMessage() + "\nMotivo:" + e.getCause(), Title.ERRO);
+			}
+		}
+	}
+
+	private void voltarTelaParaSituacaoParaInicial() {
+		openFields(false, btnEditar, btnExcluir, panelAcoesComplementares, btnSalvar, btnCancelar, btnProdutos, txtCnpj,
+				txtRua, txtNumero, comboBoxUf, txtBairro, txtCep, txtCidade, txtComplemento);
+		openFields(true, btnNovo, btnPesquisar, txtRazaoSocial);
+		removerFiltroTabela();
+		clearAllFields();
+	}
+
+	private void removerFiltroTabela() {
+		tableModel = (DefaultTableModel) tableLoja.getModel();
+		TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(tableModel);
+		tableLoja.setRowSorter(rowSorter);
+		rowSorter.setRowFilter(null);
+	}
+
+	private void clearAllFields() {
+		clearFields(txtRazaoSocial, txtCnpj, txtRua, txtNumero, comboBoxUf, txtBairro, txtCep, txtCidade,
+				txtComplemento);
+		idLoja = null;
+		idEndereco = null;
+		ProdutoView.setLoja(null);
+		ProdutoView.setProdutos(null);
+	}
+
+	private boolean podeAlterarLoja(String cnpjSemMascara) {
+		return StringUtils.isNotBlank(getRazaoSocial()) && StringUtils.isNotBlank(cnpjSemMascara);
 	}
 
 	private String getBairro() {
@@ -496,80 +551,10 @@ public class LojaView extends JInternalFrame {
 	}
 
 	private String getUf() {
-		return Objects.requireNonNull(comboBoxUf.getSelectedItem()).toString();
+		return comboBoxUf.getSelectedItem() != null ? comboBoxUf.getSelectedItem().toString() : StringUtils.EMPTY;
 	}
 
 	private int getNumero() {
 		return StringUtils.isNotBlank(txtNumero.getText()) ? Integer.parseInt(txtNumero.getText()) : 0;
-	}
-
-	private ActionListener actionPerformedBtnNovo() {
-		return actionEvent -> {
-			clearAllFields();
-			operacao = Operacao.NOVO.getOperacao();
-			openFields(false, btnEditar, btnExcluir, btnNovo, btnPesquisar);
-			openFields(true, txtRazaoSocial, txtCnpj, txtRua, txtNumero, comboBoxUf, txtBairro, txtCep, txtCidade,
-					txtComplemento, btnCancelar, btnSalvar, panelAcoesComplementares);
-		};
-	}
-
-	private ActionListener actionPerformedBtnCancelar() {
-		return actionEvent -> voltarTelaParaSituacaoParaInicial();
-	}
-
-	private void carregarDadosTabela() {
-		List<Loja> lojas = lojaController.buscarTodos();
-
-		tableLoja.getColumnModel().getColumn(0).setPreferredWidth(5);
-		tableModel = (DefaultTableModel) tableLoja.getModel();
-		JFormattedTextField cnpj = null;
-		try {
-			cnpj = new JFormattedTextField(new MaskFormatter("##.###.###/####-##"));
-		} catch (ParseException ignored) {
-		}
-		for (Loja loja : lojas) {
-			cnpj.setText(loja.getCnpj());
-			tableModel.addRow(new Object[] { loja.getId(), cnpj != null ? cnpj.getText() : "CNPJ inv\u00e1lido", loja.getRazaoSocial(),
-					loja.getEndereco().getCidade(), loja.getEndereco().getBairro() });
-		}
-	}
-
-	private void excluirDados() {
-		Long id = Long.valueOf(tableLoja.getValueAt(tableLoja.getSelectedRow(), 0).toString());
-		String razaoSocial = tableLoja.getValueAt(tableLoja.getSelectedRow(), 1).toString();
-		int opcaoEscolhida = yesOrNo(String.format("Deseja deletar a loja %s ?", razaoSocial), Title.EXCLUIR);
-
-		if (isTrue(opcaoEscolhida)) {
-			lojaController.excluir(id);
-
-			tableModel.removeRow(tableLoja.getSelectedRow());
-			mostrarInformacao(String.format("A loja (id : %d) foi removida!", id), Title.SUCESSO);
-
-		}
-
-	}
-
-	private void voltarTelaParaSituacaoParaInicial() {
-		openFields(false, btnEditar, btnExcluir, panelAcoesComplementares, btnSalvar, btnCancelar, btnProdutos, txtCnpj, txtRua,
-				txtNumero, comboBoxUf, txtBairro, txtCep, txtCidade, txtComplemento);
-		openFields(true, btnNovo, btnPesquisar, txtRazaoSocial);
-		removerFiltroTabela();
-		clearAllFields();
-	}
-
-	private void removerFiltroTabela() {
-		tableModel = (DefaultTableModel) tableLoja.getModel();
-		TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(tableModel);
-		tableLoja.setRowSorter(rowSorter);
-		rowSorter.setRowFilter(null);
-	}
-
-	private void clearAllFields() {
-		clearFields(txtRazaoSocial, txtCnpj, txtRua, txtNumero, comboBoxUf, txtBairro, txtCep, txtCidade,
-				txtComplemento);
-		idLoja = null;
-		idEndereco = null;
-		ProdutoView.setLoja(null);
-		ProdutoView.setProdutos(null);
 	}
 }

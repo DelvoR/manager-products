@@ -1,59 +1,74 @@
 package br.com.mateus.manager.products.model.repository.impl;
 
-import java.util.List;
-
-import javax.persistence.EntityManager;
-
 import br.com.mateus.manager.products.model.entity.Loja;
 import br.com.mateus.manager.products.model.repository.AbstractRepository;
 
+import javax.persistence.EntityManager;
+import java.util.List;
+
 public class LojaRepository extends AbstractRepository<Loja> {
 
-	private EntityManager entityManager;
-
-	public LojaRepository() {
-		entityManager = obterConexao();
-	}
-
-	public boolean save(Loja loja) {
+	@SuppressWarnings("Duplicates")
+	@Override
+	public void save(Loja loja) {
+		EntityManager entityManager = obterConexao();
 		try {
 			entityManager.getTransaction().begin();
-			if (loja.getId() == null) {
-				entityManager.persist(loja);
-			} else {
-				entityManager.merge(loja);
-			}
+			entityManager.persist(loja);
 			entityManager.getTransaction().commit();
-			return true;
 		} catch (Exception e) {
 			entityManager.getTransaction().rollback();
-			System.err.println(e);
-			return false;
+			throw e;
+		} finally {
+			entityManager.close();
+		}
+	}
+
+	@SuppressWarnings("Duplicates")
+	@Override
+	public void update(Loja loja) {
+		EntityManager entityManager = obterConexao();
+		try {
+			entityManager.getTransaction().begin();
+			entityManager.merge(loja);
+			entityManager.getTransaction().commit();
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+			throw e;
+		} finally {
+			entityManager.close();
 		}
 	}
 
 	public Loja findById(Long id) {
-		return entityManager.find(Loja.class, id);
+		EntityManager entityManager = obterConexao();
+		Loja loja = entityManager.find(Loja.class, id);
+		entityManager.close();
+		return loja;
 	}
 
 	@SuppressWarnings("unchecked")
 	public List<Loja> findAll() {
-		return entityManager.createQuery("FROM Loja l").getResultList();
+		EntityManager entityManager = obterConexao();
+		List<Loja> lojas = entityManager.createQuery("SELECT l FROM " + Loja.class.getSimpleName() + " l").getResultList();
+		entityManager.close();
+		return lojas;
 	}
 
-	public boolean remove(Long id) {
+	public void remove(Long id) {
+		EntityManager entityManager = obterConexao();
 		try {
-			Loja loja = findById(id);
+			Loja loja = entityManager.find(Loja.class, id);
 			if (loja != null) {
 				entityManager.getTransaction().begin();
 				entityManager.remove(loja);
 				entityManager.getTransaction().commit();
 			}
-			return true;
 		} catch (Exception e) {
-			System.err.println(e);
 			entityManager.getTransaction().rollback();
-			return false;
+			throw e;
+		} finally {
+			entityManager.close();
 		}
 	}
 }

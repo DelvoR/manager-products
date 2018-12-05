@@ -1,10 +1,9 @@
 package br.com.mateus.manager.products.model.entity;
 
-import java.io.Serializable;
+import br.com.mateus.manager.products.model.enums.Estado;
 
 import javax.persistence.*;
-
-import br.com.mateus.manager.products.model.enums.Estado;
+import java.io.Serializable;
 
 @Entity
 public class Endereco implements Serializable {
@@ -34,56 +33,6 @@ public class Endereco implements Serializable {
 		complemento = builder.complemento;
 		cidade = builder.cidade;
 		uf = builder.uf;
-	}
-
-	public static class Builder {
-
-		private String rua;
-		private Integer numero;
-		private String bairro;
-		private String cep;
-		private String complemento;
-		private String cidade;
-		private Estado uf;
-
-		public Builder rua(String rua) {
-			this.rua = rua;
-			return this;
-		}
-
-		public Builder numero(Integer numero) {
-			this.numero = numero;
-			return this;
-		}
-
-		public Builder bairro(String bairro) {
-			this.bairro = bairro;
-			return this;
-		}
-
-		public Builder cep(String cep) {
-			this.cep = cep;
-			return this;
-		}
-
-		public Builder complemento(String complemento) {
-			this.complemento = complemento;
-			return this;
-		}
-
-		public Builder cidade(String cidade) {
-			this.cidade = cidade;
-			return this;
-		}
-
-		public Builder uf(String uf) {
-			this.uf = Estado.fromString(uf);
-			return this;
-		}
-
-		public Endereco build() {
-			return new Endereco(this);
-		}
 	}
 
 	public Long getId() {
@@ -150,11 +99,53 @@ public class Endereco implements Serializable {
 		this.uf = uf;
 	}
 
-	@Override
-	public String toString() {
-		return "Rua " + rua +
-				", N.: " + numero +
-				", Bairro: " + bairro +
-				" - CEP: " + cep;
+	public static class Builder {
+
+		private String rua;
+		private Integer numero;
+		private String bairro;
+		private String cep;
+		private String complemento;
+		private String cidade;
+		private Estado uf;
+
+		public Builder rua(String rua) {
+			this.rua = rua;
+			return this;
+		}
+
+		public Builder numero(Integer numero) {
+			this.numero = numero;
+			return this;
+		}
+
+		public Builder bairro(String bairro) {
+			this.bairro = bairro;
+			return this;
+		}
+
+		public Builder cep(String cep) {
+			this.cep = cep;
+			return this;
+		}
+
+		public Builder complemento(String complemento) {
+			this.complemento = complemento;
+			return this;
+		}
+
+		public Builder cidade(String cidade) {
+			this.cidade = cidade;
+			return this;
+		}
+
+		public Builder uf(String uf) {
+			this.uf = Estado.fromString(uf);
+			return this;
+		}
+
+		public Endereco build() {
+			return new Endereco(this);
+		}
 	}
 }
