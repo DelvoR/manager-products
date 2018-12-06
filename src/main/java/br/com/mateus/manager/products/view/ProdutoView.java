@@ -27,8 +27,7 @@ import java.util.List;
 public class ProdutoView extends JInternalFrame {
 
 	private static final long serialVersionUID = 2538628797157567245L;
-	private static Loja loja;
-	private static List<Produto> produtos;
+	private Loja loja;
 	private DefaultTableModel tableModel;
 	private Integer operacao;
 	private Long produtoId;
@@ -43,7 +42,6 @@ public class ProdutoView extends JInternalFrame {
 	private JButton btnNovo;
 	private JButton btnEditar;
 	private JButton btnExcluir;
-	private ProdutoController produtoController = new ProdutoController();
 
 	private ProdutoView() {
 		try {
@@ -51,6 +49,11 @@ public class ProdutoView extends JInternalFrame {
 		} catch (IOException ignored) {
 		}
 		initComponents();
+	}
+
+	private ProdutoView(Loja loja) {
+		this();
+		this.loja = loja;
 		carregarDadosTabela();
 	}
 
@@ -65,16 +68,8 @@ public class ProdutoView extends JInternalFrame {
 		});
 	}
 
-	static ProdutoView getInstance() {
-		return new ProdutoView();
-	}
-
-	static void setProdutos(List<Produto> produtos) {
-		ProdutoView.produtos = produtos;
-	}
-
-	static void setLoja(Loja loja) {
-		ProdutoView.loja = loja;
+	static ProdutoView getInstance(Loja loja) {
+		return new ProdutoView(loja);
 	}
 
 	private void initComponents() {
@@ -177,21 +172,23 @@ public class ProdutoView extends JInternalFrame {
 		panelAcoesComplementares.add(btnCancelar);
 
 		JMenuBar menuBar = new JMenuBar();
-		menuBar.setBounds(0, 0, 728, 21);
+		menuBar.setBounds(0, 0, 728, 30);
 		getContentPane().add(menuBar);
 
 		btnNovo = new JButton("Novo");
-		btnNovo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnNovo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		btnNovo.addActionListener(actionPerformedBtnNovo());
 		menuBar.add(btnNovo);
 
 		btnEditar = new JButton("Editar");
-		btnEditar.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnEditar.setEnabled(false);
+		btnEditar.setFont(new Font("Tahoma", Font.BOLD, 14));
 		btnEditar.addActionListener(actionPerformedBntEditar());
 		menuBar.add(btnEditar);
 
 		btnExcluir = new JButton("Excluir");
-		btnExcluir.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnExcluir.setEnabled(false);
+		btnExcluir.setFont(new Font("Tahoma", Font.BOLD, 14));
 		btnExcluir.addActionListener(actionPerformedBtnExcluir());
 		menuBar.add(btnExcluir);
 	}
@@ -250,13 +247,15 @@ public class ProdutoView extends JInternalFrame {
 
 	private ActionListener actionPerformedBtnSalvar() {
 		return actionEvent -> {
-			Produto produto = new Produto.Builder().descricao(txtDescricao.getText())
-					.quantidade(Double.parseDouble(getQuantidade())).valor(Double.parseDouble(getPreco()))
+			Produto produto = new Produto.Builder().descricao(getDescricao())
+					.quantidade(Double.parseDouble(getQuantidade()))
+					.valor(Double.parseDouble(getPreco()))
 					.loja(loja)
 					.build();
 
 			if (StringUtils.isNotBlank(produto.getDescricao())) {
 				try {
+					ProdutoController produtoController = new ProdutoController();
 					if (operacao.equals(Operacao.NOVO.getOperacao())) {
 						produtoController.cadastrar(produto);
 						tableModel.addRow(new Object[]{produto.getId(), produto.getDescricao(),
@@ -320,6 +319,7 @@ public class ProdutoView extends JInternalFrame {
 
 	private void carregarDadosTabela() {
 		tableModel = (DefaultTableModel) tableProduto.getModel();
+		List<Produto> produtos = loja.getProdutos();
 		if (CollectionUtils.isNotEmpty(produtos)) {
 			for (Produto produto : produtos) {
 				tableModel.addRow(new Object[]{produto.getId(), produto.getDescricao(), produto.getQuantidade(),
@@ -336,6 +336,7 @@ public class ProdutoView extends JInternalFrame {
 
 		if (JOptionUtils.isTrue(opcaoEscolhida)) {
 			try {
+				ProdutoController produtoController = new ProdutoController();
 				produtoController.excluir(id);
 				tableModel.removeRow(tableProduto.getSelectedRow());
 				JOptionUtils.mostrarSucesso(String.format("O produto (id: %d) foi removido!", id), Title.SUCESSO);

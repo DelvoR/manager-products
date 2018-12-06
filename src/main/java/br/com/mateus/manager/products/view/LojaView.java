@@ -34,7 +34,6 @@ import static br.com.mateus.manager.products.utils.JOptionUtils.*;
 public class LojaView extends JInternalFrame {
 
 	private static final long serialVersionUID = 5797416484063659840L;
-	private static final LojaController lojaController = new LojaController();
 	private static LojaView instance;
 	private JanelaUtils janelaUtils;
 	private Long idLoja;
@@ -47,18 +46,18 @@ public class LojaView extends JInternalFrame {
 	private JTextField txtNumero;
 	private JTextField txtBairro;
 	private JTextField txtCep;
-	private JComboBox<Estado> comboBoxUf;
 	private JTextField txtComplemento;
 	private JTextField txtCidade;
+	private JComboBox<Estado> comboBoxUf;
 	private JTable tableLoja;
 	private JButton btnPesquisar;
-	private JPanel panelAcoesComplementares;
 	private JButton btnCancelar;
 	private JButton btnSalvar;
 	private JButton btnNovo;
 	private JButton btnEditar;
 	private JButton btnExcluir;
 	private JButton btnProdutos;
+	private JPanel panelAcoesComplementares;
 
 	private LojaView() {
 		try {
@@ -281,22 +280,25 @@ public class LojaView extends JInternalFrame {
 
 		btnNovo = new JButton("Novo");
 		btnNovo.addActionListener(actionPerformedBtnNovo());
-		btnNovo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnNovo.setFont(new Font("Tahoma", Font.BOLD, 14));
 		menuBar.add(btnNovo);
 
 		btnEditar = new JButton("Editar");
+		btnEditar.setEnabled(false);
 		btnEditar.addActionListener(actionPerformedBtnEditar());
-		btnEditar.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnEditar.setFont(new Font("Tahoma", Font.BOLD, 14));
 		menuBar.add(btnEditar);
 
 		btnExcluir = new JButton("Excluir");
+		btnExcluir.setEnabled(false);
 		btnExcluir.addActionListener(actionPerfomedBtnExcluir());
-		btnExcluir.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnExcluir.setFont(new Font("Tahoma", Font.BOLD, 14));
 		menuBar.add(btnExcluir);
 
 		btnProdutos = new JButton("Produtos");
+		btnProdutos.setEnabled(false);
 		btnProdutos.addActionListener(actionPerformedBtnProdutos());
-		btnProdutos.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnProdutos.setFont(new Font("Tahoma", Font.BOLD, 14));
 		menuBar.add(btnProdutos);
 
 	}
@@ -305,10 +307,9 @@ public class LojaView extends JInternalFrame {
 		return actionEvent -> {
 			if (idLoja != null) {
 				try {
+					LojaController lojaController = new LojaController();
 					Loja loja = lojaController.buscar(idLoja);
-					ProdutoView.setLoja(loja);
-					ProdutoView.setProdutos(loja.getProdutos());
-					janelaUtils.abrirInternalFrame(ProdutoView.getInstance());
+					janelaUtils.abrirInternalFrame(ProdutoView.getInstance(loja));
 				} catch (BuscarException e) {
 					JOptionUtils.mostrarErro(e.getMessage() + "\nMotivo:" + e.getCause(), Title.ERRO);
 				}
@@ -350,6 +351,7 @@ public class LojaView extends JInternalFrame {
 				txtBairro.setText(JOptionUtils.getValueFromColumn(tableLoja, ColumnTitle.BAIRRO));
 
 				try {
+					LojaController lojaController = new LojaController();
 					idLoja = Long.valueOf(getValueFromColumn(tableLoja, ColumnTitle.ID));
 					Loja loja = lojaController.buscar(idLoja);
 					Endereco endereco = loja.getEndereco();
@@ -371,7 +373,6 @@ public class LojaView extends JInternalFrame {
 	private ActionListener actionPerformedBtnEditar() {
 		return actionEvent -> {
 			operacao = Operacao.EDITAR.getOperacao();
-
 			try {
 				JOptionUtils.linhaSelecionada(tableLoja);
 				openFields(false, btnExcluir, btnNovo);
@@ -386,8 +387,8 @@ public class LojaView extends JInternalFrame {
 	private ActionListener actionPerfomedBtnExcluir() {
 		return actionEvent -> {
 			operacao = Operacao.EXCLUIR.getOperacao();
-
 			try {
+				LojaController lojaController = new LojaController();
 				JOptionUtils.linhaSelecionada(tableLoja);
 				openFields(false, btnNovo, btnSalvar);
 				openFields(true, panelAcoesComplementares, btnCancelar);
@@ -402,14 +403,26 @@ public class LojaView extends JInternalFrame {
 
 	private ActionListener actionPerformedBtnSalvar() {
 		return actionEvent -> {
-			String cnpjSemMascara = getCnpj().replaceAll("\\.", "").replaceAll("/", "").replaceAll("-", "");
+			String cnpjSemMascara = getCnpj()
+					.replaceAll("\\.", "")
+					.replaceAll("/", "")
+					.replaceAll("-", "");
 
-			Endereco endereco = new Endereco.Builder().rua(getRua()).numero(getNumero()).uf(getUf()).bairro(getBairro())
-					.cep(getCep()).cidade(getCidade()).complemento(getComplemento()).build();
+			Endereco endereco = new Endereco.Builder()
+					.rua(getRua())
+					.numero(getNumero())
+					.uf(getUf())
+					.bairro(getBairro())
+					.cep(getCep())
+					.cidade(getCidade())
+					.complemento(getComplemento())
+					.build();
+
 			if (podeAlterarLoja(cnpjSemMascara)) {
 				Loja loja = new Loja(getRazaoSocial(), endereco, cnpjSemMascara);
 				try {
 					if (operacao.equals(Operacao.NOVO.getOperacao())) {
+						LojaController lojaController = new LojaController();
 						lojaController.cadastrar(loja);
 						tableModel.addRow(
 								new Object[]{loja.getId(), getCnpj(), getRazaoSocial(), getCidade(), getBairro()});
@@ -417,12 +430,12 @@ public class LojaView extends JInternalFrame {
 								"Loja cadastrada com sucesso! \nDeseja cadastrar produtos para essa loja?",
 								Title.SUCESSO);
 						if (isTrue(opcao)) {
-							ProdutoView.setLoja(loja);
-							janelaUtils.abrirInternalFrame(ProdutoView.getInstance());
+							janelaUtils.abrirInternalFrame(ProdutoView.getInstance(loja));
 						}
 					} else if (operacao.equals(Operacao.EDITAR.getOperacao())) {
 						loja.setId(idLoja);
 						endereco.setId(idEndereco);
+						LojaController lojaController = new LojaController();
 						lojaController.atualizar(loja);
 						tableModel.setValueAt(getCnpj(), tableLoja.getSelectedRow(), 1);
 						tableModel.setValueAt(getRazaoSocial(), tableLoja.getSelectedRow(), 2);
@@ -457,6 +470,7 @@ public class LojaView extends JInternalFrame {
 
 	private void carregarDadosTabela() {
 		try {
+			LojaController lojaController = new LojaController();
 			List<Loja> lojas = lojaController.buscarTodos();
 			tableLoja.getColumnModel().getColumn(0).setPreferredWidth(5);
 			tableModel = (DefaultTableModel) tableLoja.getModel();
@@ -485,6 +499,7 @@ public class LojaView extends JInternalFrame {
 
 		if (isTrue(opcaoEscolhida)) {
 			try {
+				LojaController lojaController = new LojaController();
 				lojaController.excluir(id);
 				tableModel.removeRow(tableLoja.getSelectedRow());
 				mostrarSucesso(String.format("A loja (id : %d) foi removida!", id), Title.SUCESSO);
@@ -514,8 +529,6 @@ public class LojaView extends JInternalFrame {
 				txtComplemento);
 		idLoja = null;
 		idEndereco = null;
-		ProdutoView.setLoja(null);
-		ProdutoView.setProdutos(null);
 	}
 
 	private boolean podeAlterarLoja(String cnpjSemMascara) {

@@ -1,5 +1,6 @@
 package br.com.mateus.manager.products.controller.impl;
 
+import br.com.mateus.manager.products.connection.ConnectionFactory;
 import br.com.mateus.manager.products.controller.IController;
 import br.com.mateus.manager.products.exceptions.AtualizarException;
 import br.com.mateus.manager.products.exceptions.BuscarException;
@@ -18,6 +19,7 @@ public class LojaController implements IController<Loja> {
 
 	public LojaController() {
 		repository = new LojaRepository();
+		((LojaRepository) repository).setEntityManager(ConnectionFactory.getEntityManager());
 	}
 
 	@Override
@@ -49,11 +51,11 @@ public class LojaController implements IController<Loja> {
 
 	@Override
 	public List<Loja> buscarTodos() throws BuscarException {
-		List<Loja> produt = repository.findAll();
-		if (CollectionUtils.isEmpty(produt)) {
+		List<Loja> lojas = repository.findAll();
+		if (CollectionUtils.isEmpty(lojas)) {
 			throw new BuscarException("Loja nao encontrado");
 		}
-		return produt;
+		return lojas;
 	}
 
 	@Override

@@ -6,15 +6,16 @@ import br.com.mateus.manager.products.model.repository.AbstractRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.FlushModeType;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 public class ProdutoRepository extends AbstractRepository<Produto> {
 
+	private EntityManager entityManager;
 
 	@SuppressWarnings("Duplicates")
 	@Override
 	public void save(Produto produto) {
-		EntityManager entityManager = obterConexao();
 		try {
 			entityManager.getTransaction().begin();
 			entityManager.persist(produto);
@@ -30,7 +31,6 @@ public class ProdutoRepository extends AbstractRepository<Produto> {
 	@SuppressWarnings("Duplicates")
 	@Override
 	public void update(Produto produto) {
-		EntityManager entityManager = obterConexao();
 		try {
 			entityManager.getTransaction().begin();
 			entityManager.merge(produto);
@@ -44,7 +44,6 @@ public class ProdutoRepository extends AbstractRepository<Produto> {
 	}
 
 	public Produto findById(Long id) {
-		EntityManager entityManager = obterConexao();
 		Produto produto = entityManager.find(Produto.class, id);
 		entityManager.close();
 		return produto;
@@ -52,14 +51,12 @@ public class ProdutoRepository extends AbstractRepository<Produto> {
 
 	@SuppressWarnings("unchecked")
 	public List<Produto> findAll() {
-		EntityManager entityManager = obterConexao();
 		List<Produto> produtos = entityManager.createQuery("SELECT p FROM " + Produto.class.getSimpleName() + " p").getResultList();
 		entityManager.close();
 		return produtos;
 	}
 
 	public void remove(Long id) {
-		EntityManager entityManager = obterConexao();
 		try {
 			Produto produto = entityManager.find(Produto.class, id);
 			entityManager.getTransaction().begin();
@@ -73,5 +70,9 @@ public class ProdutoRepository extends AbstractRepository<Produto> {
 		} finally {
 			entityManager.close();
 		}
+	}
+
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
 	}
 }

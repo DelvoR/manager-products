@@ -30,7 +30,6 @@ public class MainView extends JFrame {
 		}
 		lblNewLabel.setBounds(10, 11, 1115, 612);
 		desktop.add(lblNewLabel);
-		initConnection();
 	}
 
 	public static void main(String[] args) {
@@ -80,7 +79,7 @@ public class MainView extends JFrame {
 			btnLojas.setIcon(new ImageIcon(IOUtils.resourceToURL("/images/lojas.png")));
 		} catch (IOException ignored) {
 		}
-		btnLojas.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnLojas.setFont(new Font("Tahoma", Font.BOLD, 14));
 		btnLojas.addActionListener(actionPerformedBtnLojas());
 		menuBar.add(btnLojas);
 
@@ -89,7 +88,7 @@ public class MainView extends JFrame {
 			btnPesquisarProdutosELojas.setIcon(new ImageIcon(IOUtils.resourceToURL("/images/pesquisar-lojas.png")));
 		} catch (IOException ignored) {
 		}
-		btnPesquisarProdutosELojas.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnPesquisarProdutosELojas.setFont(new Font("Tahoma", Font.BOLD, 14));
 		btnPesquisarProdutosELojas.addActionListener(actionPerformedBtnPesquisarProdutos());
 		menuBar.add(btnPesquisarProdutosELojas);
 	}
@@ -100,9 +99,5 @@ public class MainView extends JFrame {
 
 	private ActionListener actionPerformedBtnPesquisarProdutos() {
 		return actionEvent -> janelaUtils.abrirInternalFrame(PesquisaProdutoView.getInstance());
-	}
-
-	private void initConnection() {
-		ConnectionFactory.getEntityManager();
 	}
 }

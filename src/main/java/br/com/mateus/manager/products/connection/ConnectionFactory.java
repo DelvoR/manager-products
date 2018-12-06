@@ -9,8 +9,6 @@ public class ConnectionFactory {
 	private static EntityManagerFactory factory =
 			Persistence.createEntityManagerFactory("persistence-default");
 
-	private EntityManager entityManager;
-
 	public static EntityManager getEntityManager() {
 		return factory.createEntityManager();
 	}

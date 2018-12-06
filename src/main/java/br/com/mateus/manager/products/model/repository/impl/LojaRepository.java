@@ -8,10 +8,11 @@ import java.util.List;
 
 public class LojaRepository extends AbstractRepository<Loja> {
 
+	private EntityManager entityManager;
+
 	@SuppressWarnings("Duplicates")
 	@Override
 	public void save(Loja loja) {
-		EntityManager entityManager = obterConexao();
 		try {
 			entityManager.getTransaction().begin();
 			entityManager.persist(loja);
@@ -27,7 +28,6 @@ public class LojaRepository extends AbstractRepository<Loja> {
 	@SuppressWarnings("Duplicates")
 	@Override
 	public void update(Loja loja) {
-		EntityManager entityManager = obterConexao();
 		try {
 			entityManager.getTransaction().begin();
 			entityManager.merge(loja);
@@ -41,7 +41,6 @@ public class LojaRepository extends AbstractRepository<Loja> {
 	}
 
 	public Loja findById(Long id) {
-		EntityManager entityManager = obterConexao();
 		Loja loja = entityManager.find(Loja.class, id);
 		entityManager.close();
 		return loja;
@@ -49,14 +48,12 @@ public class LojaRepository extends AbstractRepository<Loja> {
 
 	@SuppressWarnings("unchecked")
 	public List<Loja> findAll() {
-		EntityManager entityManager = obterConexao();
 		List<Loja> lojas = entityManager.createQuery("SELECT l FROM " + Loja.class.getSimpleName() + " l").getResultList();
 		entityManager.close();
 		return lojas;
 	}
 
 	public void remove(Long id) {
-		EntityManager entityManager = obterConexao();
 		try {
 			Loja loja = entityManager.find(Loja.class, id);
 			if (loja != null) {
@@ -70,5 +67,9 @@ public class LojaRepository extends AbstractRepository<Loja> {
 		} finally {
 			entityManager.close();
 		}
+	}
+
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
 	}
 }
