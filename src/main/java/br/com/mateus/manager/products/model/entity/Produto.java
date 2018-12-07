@@ -3,6 +3,12 @@ package br.com.mateus.manager.products.model.entity;
 import javax.persistence.*;
 import java.io.Serializable;
 
+/**
+ * Representa o objeto Produto no banco de dados. Nela ser&atilde;o persistidos os
+ * dados necess&aacute;rios para fornecer informa&ccedil;&otilde;es necess&aacute;rias ao usu&aacute;rio. A classe
+ * est&aacute; mapeada com as anota&ccedil;&otilde;es necess&aacute;rias fornecidas pelo Hibernate.
+ * Framework que implementa as regras exigidas pela API Java Persistence (JPA).
+ */
 @Entity
 public class Produto implements Serializable {
 
@@ -68,7 +74,10 @@ public class Produto implements Serializable {
 		this.loja = loja;
 	}
 
-	@SuppressWarnings("unused")
+	/**
+	 * Builder de Produto. Permite criar um Objeto Produto com os atributos que
+	 * forem necess&aacute;rios
+	 */
 	public static class Builder {
 		private String descricao;
 		private Double quantidade;

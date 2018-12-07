@@ -5,6 +5,10 @@ import br.com.mateus.manager.products.model.enums.Estado;
 import javax.persistence.*;
 import java.io.Serializable;
 
+/**
+ * Uma tabela no banco de dados para guardar informa&ccedil;&otilde;es espec&iacute;ficas desse
+ * objeto. Tamb&eacute;m est&aacute; mapeada pelo Hibernate com a implementa&ccedil;&atilde;o JPA.
+ */
 @Entity
 public class Endereco implements Serializable {
 
@@ -99,6 +103,10 @@ public class Endereco implements Serializable {
 		this.uf = uf;
 	}
 
+	/**
+	 * Builder de Endereco. Permite criar um Objeto Endere&ccedil;o com os atributos que
+	 * forem necess&aacute;rios
+	 */
 	public static class Builder {
 
 		private String rua;

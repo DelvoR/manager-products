@@ -1,6 +1,6 @@
 package br.com.mateus.manager.products.view;
 
-import br.com.mateus.manager.products.controller.impl.ProdutoController;
+import br.com.mateus.manager.products.controller.impl.LojaController;
 import br.com.mateus.manager.products.exceptions.BuscarException;
 import br.com.mateus.manager.products.model.entity.Endereco;
 import br.com.mateus.manager.products.model.entity.Loja;
@@ -138,18 +138,19 @@ public class PesquisaProdutoView extends JInternalFrame {
 	}
 
 	private void carregarDadosTabela() {
-		ProdutoController produtoController = new ProdutoController();
+		LojaController lojaController = new LojaController();
 		try {
-			List<Produto> produtos = produtoController.buscarTodos();
+			List<Loja> lojas = lojaController.buscarTodos();
 			tableModel = (DefaultTableModel) tableProdutos.getModel();
 
-			if (CollectionUtils.isNotEmpty(produtos)) {
-				for (Produto produto : produtos) {
-					Loja loja = produto.getLoja();
-					Endereco endereco = loja.getEndereco();
-					tableModel.addRow(new Object[]{loja.getRazaoSocial(), endereco.getBairro(), endereco.getRua(),
-							endereco.getCidade(), endereco.getUf(), produto.getDescricao(),
-							produto.getQuantidade(), produto.getValor()});
+			for (Loja loja : lojas) {
+				if (CollectionUtils.isNotEmpty(lojas)) {
+					for (Produto produto : loja.getProdutos()) {
+						Endereco endereco = loja.getEndereco();
+						tableModel.addRow(new Object[]{loja.getRazaoSocial(), endereco.getBairro(), endereco.getRua(),
+								endereco.getCidade(), endereco.getUf(), produto.getDescricao(),
+								produto.getQuantidade(), produto.getValor()});
+					}
 				}
 			}
 		} catch (BuscarException e) {

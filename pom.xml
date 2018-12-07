@@ -81,7 +81,46 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>br.com.mateus.manager.products.view.MainView</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources/images</directory>
+                <includes>
+                    <include>**/*.png</include>
+                </includes>
+                <targetPath>/images</targetPath>
+            </resource>
+            <resource>
+                <directory>src/main/resources/META-INF</directory>
+                <includes>
+                    <include>persistence.xml</include>
+                </includes>
+                <targetPath>/META-INF</targetPath>
+            </resource>
+        </resources>
     </build>
 
 </project>

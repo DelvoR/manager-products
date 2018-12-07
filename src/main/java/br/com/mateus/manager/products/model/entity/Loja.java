@@ -4,6 +4,18 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * Representa o objeto Loja. &Eacute; uma Entidade (tabela) no banco de dados. Os
+ * atributos da classe representam as colunas da tabela loja no banco e &eacute; onde
+ * ser&atilde;o persistidos os dados referente ao objeto Loja. A classe est&aacute; mapeada
+ * com as anota&ccedil;&otilde;es fornecidas pela framework Hibernate. Com @Entity informamos
+ * que a classe &eacute; uma tabela no banco. @Columm ser&atilde;o as colunas. Essas anota&ccedil;&otilde;es
+ * s&atilde;o conven&ccedil;&otilde;es definidas no Hibernate. Para que isso aconte&ccedil;a &eacute; feito o
+ * mapeamento desta classe no arquivo de persist&ecirc;ncia
+ * src/main/resources/META-INF/persistence.xml O Framework Hibernate aqui &eacute;
+ * respons&aacute;vel por abstrar o c&oacute;digo SQL, toda a camada JDBC e o SQL ser&aacute; gerado
+ * em tempo de execu&ccedil;&atilde;o.
+ */
 @Entity
 public class Loja implements Serializable {
 

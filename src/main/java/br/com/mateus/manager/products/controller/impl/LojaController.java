@@ -13,15 +13,27 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 
+/**
+ * Define os m&eacute;todos capazes de produzir os eventos da interface de usu&aacute;rio,
+ * transforma esses eventos em a&ccedil;&otilde;es no modelo. As a&ccedil;&otilde;es de usu&aacute;rio na tela
+ * LojaView s&atilde;o atendidos pelos m&eacute;todos definidos pela classe controlador.
+ */
 public class LojaController implements IController<Loja> {
 
 	private AbstractRepository<Loja> repository;
 
+	/**
+	 *
+	 */
 	public LojaController() {
 		repository = new LojaRepository();
 		((LojaRepository) repository).setEntityManager(ConnectionFactory.getEntityManager());
 	}
 
+	/**
+	 * @param loja
+	 * @throws CadastrarException
+	 */
 	@Override
 	public void cadastrar(Loja loja) throws CadastrarException {
 		try {
@@ -31,6 +43,10 @@ public class LojaController implements IController<Loja> {
 		}
 	}
 
+	/**
+	 * @param loja
+	 * @throws AtualizarException
+	 */
 	@Override
 	public void atualizar(Loja loja) throws AtualizarException {
 		try {
@@ -40,6 +56,11 @@ public class LojaController implements IController<Loja> {
 		}
 	}
 
+	/**
+	 * @param id
+	 * @return
+	 * @throws BuscarException
+	 */
 	@Override
 	public Loja buscar(Long id) throws BuscarException {
 		Loja loja = repository.findById(id);
@@ -49,6 +70,10 @@ public class LojaController implements IController<Loja> {
 		return loja;
 	}
 
+	/**
+	 * @return
+	 * @throws BuscarException
+	 */
 	@Override
 	public List<Loja> buscarTodos() throws BuscarException {
 		List<Loja> lojas = repository.findAll();
@@ -58,6 +83,10 @@ public class LojaController implements IController<Loja> {
 		return lojas;
 	}
 
+	/**
+	 * @param id
+	 * @throws ExcluirException
+	 */
 	@Override
 	public void excluir(Long id) throws ExcluirException {
 		try {

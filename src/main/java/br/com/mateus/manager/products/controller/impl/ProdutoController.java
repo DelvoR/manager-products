@@ -17,11 +17,18 @@ public class ProdutoController implements IController<Produto> {
 
 	private AbstractRepository<Produto> repository;
 
+	/**
+	 *
+	 */
 	public ProdutoController() {
 		repository = new ProdutoRepository();
 		((ProdutoRepository) repository).setEntityManager(ConnectionFactory.getEntityManager());
 	}
 
+	/**
+	 * @param produto
+	 * @throws CadastrarException
+	 */
 	@Override
 	public void cadastrar(Produto produto) throws CadastrarException {
 		try {
@@ -31,6 +38,10 @@ public class ProdutoController implements IController<Produto> {
 		}
 	}
 
+	/**
+	 * @param produto
+	 * @throws AtualizarException
+	 */
 	@Override
 	public void atualizar(Produto produto) throws AtualizarException {
 		try {
@@ -40,6 +51,11 @@ public class ProdutoController implements IController<Produto> {
 		}
 	}
 
+	/**
+	 * @param id
+	 * @return
+	 * @throws BuscarException
+	 */
 	@Override
 	public Produto buscar(Long id) throws BuscarException {
 		Produto produto = repository.findById(id);
@@ -49,6 +65,10 @@ public class ProdutoController implements IController<Produto> {
 		return produto;
 	}
 
+	/**
+	 * @return
+	 * @throws BuscarException
+	 */
 	@Override
 	public List<Produto> buscarTodos() throws BuscarException {
 		List<Produto> produt = repository.findAll();
@@ -58,6 +78,10 @@ public class ProdutoController implements IController<Produto> {
 		return produt;
 	}
 
+	/**
+	 * @param id
+	 * @throws ExcluirException
+	 */
 	@Override
 	public void excluir(Long id) throws ExcluirException {
 		try {
